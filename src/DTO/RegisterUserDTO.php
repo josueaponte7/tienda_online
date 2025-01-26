@@ -4,17 +4,19 @@ declare(strict_types=1);
 
 namespace App\DTO;
 
+use App\VO\Roles;
+
 final class RegisterUserDTO
 {
     public string $email;
     public string $password;
-    public array $roles;
+    public Roles $roles;
 
-    public function __construct(string $email, string $password, array $roles = ['ROLE_USER'])
+    public function __construct(string $email, string $password, array $roles = [])
     {
         $this->email = $email;
         $this->password = $password;
-        $this->roles = $roles;
+        $this->roles = new Roles($roles);
     }
 
     public function getEmail(): string
@@ -27,7 +29,7 @@ final class RegisterUserDTO
         return $this->password;
     }
 
-    public function getRoles(): array
+    public function getRoles(): Roles
     {
         return $this->roles;
     }

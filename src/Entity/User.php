@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\VO\Email;
 use App\VO\Password;
+use App\VO\Roles;
 use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -22,103 +23,57 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
     #[ORM\Column(type: "string")]
     private string $password;
     #[ORM\Column(type: "json")]
-    private array $roles = [];
+    private array $roles;
 
-    private function __construct(string $email, string $password, array $roles = ['ROLE_USER'])
+    private function __construct(string $email, string $password, Roles $roles)
     {
         $this->id = Ulid::generate();
         $this->email = $email;
         $this->password = $password;
-        $this->roles = $roles;
+        $this->roles = $roles->getValue();
     }
 
-    public static function fromValues(string $email, string $password, array $roles = ['ROLE_USER']): self
+    public static function fromValues(string $email, string $password, array $roles = []): self
     {
-        return new self($email, $password, $roles);
+        return new self($email, $password, new Roles($roles));
     }
 
-    public static function fromValueObjects(Email $email, Password $password, array $roles = ['ROLE_USER']): self
+    public static function fromValueObjects(Email $email, Password $password, Roles $roles): self
     {
         return new self($email->getValue(), $password->getValue(), $roles);
     }
 
-    /**
-     * Obtener el identificador único del usuario.
-     */
     public function getId(): string
     {
         return $this->id;
     }
 
-    /**
-     * Obtener el email del usuario.
-     */
     public function getEmail(): string
     {
         return $this->email;
     }
 
-    /**
-     * Establecer el email del usuario.
-     */
-    public function setEmail(string $email): self
+    public function setEmail(Email $email): self
     {
-        $this->email = $email;
+        $this->email = $email->getValue();
         return $this;
     }
 
-    /**
-     * Obtener la contraseña del usuario.
-     */
-    public function getPassword(): string
+    public function setPassword(Password $password): self
     {
-        return $this->password;
-    }
-
-    /**
-     * Establecer la contraseña del usuario.
-     */
-    public function setPassword(string $password): self
-    {
-        $this->password = $password;
+        $this->password = $password->getValue();
         return $this;
     }
 
-    /**
-     * Obtener los roles del usuario.
-     */
     public function getRoles(): array
     {
-        // Garantizar que siempre haya al menos un rol predeterminado
-        $roles = $this->roles;
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
+        return $this->roles;
     }
 
-    /**
-     * Establecer los roles del usuario.
-     */
-    public function setRoles(array $roles): self
+    public function setRoles(Roles $roles): self
     {
-        $this->roles = $roles;
+        $this->roles = $roles->getValue();
         return $this;
-    }
-
-    /**
-     * Eliminar datos sensibles.
-     */
-    public function eraseCredentials(): void
-    {
-        // Este método se puede usar para limpiar datos temporales sensibles
-    }
-
-    /**
-     * Devuelve el identificador único del usuario (en este caso, el email).
-     */
-    public function getUserIdentifier(): string
-    {
-        return $this->email;
     }
 
     public function jsonSerialize(): array
@@ -128,5 +83,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
             'email' => $this->email,
             'roles' => $this->roles,
         ];
+    }
+
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
+
+    public function eraseCredentials(): void
+    {
+        // TODO: Implement eraseCredentials() method.
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->email;
     }
 }

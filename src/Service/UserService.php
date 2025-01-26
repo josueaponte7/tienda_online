@@ -24,16 +24,33 @@ class UserService
     public function registerUser(RegisterUserDTO $dto): User
     {
         $email = new Email($dto->email);
-        $roles = $dto->roles;
 
         if ($this->userRepository->existsByEmail($email->getValue())) {
             throw new Exception('User already exists.');
         }
 
         $password = new Password($dto->password);
-        $user = UserFactory::create($email, $password, $roles);
+        $user = UserFactory::create($email, $password, $dto->roles->getValue());
         $this->userRepository->save($user);
+
         return $this->userRepository->findByEmail($dto->email);
+    }
+
+    public function updateUser(string $id, RegisterUserDTO $dto): void
+    {
+        $user = $this->userRepository->findById($id);
+        if (!$user) {
+            throw new Exception('Usuario no encontrado.');
+        }
+
+        $email = new Email($dto->getEmail());
+        $password = $dto->getPassword() ? new Password($dto->getPassword()) : null;
+        $roles = !empty($dto->getRoles()->getValue()) ? $dto->getRoles()->getValue() : null;
+
+        // Usamos la fábrica para actualizar el usuario
+        $user = UserFactory::update($user, $email, $password, $roles);
+
+        $this->userRepository->save($user);
     }
 
     public function getAllUsers(): array
@@ -44,29 +61,6 @@ class UserService
     public function getUserById(string $id): ?User
     {
         return $this->userRepository->find($id);
-    }
-
-    public function updateUser(string $id, RegisterUserDTO $dto): void
-    {
-        $user = $this->userRepository->findById($id);
-        if (!$user) {
-            throw new Exception('Usuario no encontrado.');
-        }
-
-        // Editar los datos del usuario
-        $user->setEmail($dto->getEmail())
-            ->setRoles(
-                !empty($dto->getRoles()) ? $dto->getRoles() : ['ROLE_USER'],
-            ); // Asignar roles predeterminados si están vacíos
-
-        // Hashear la nueva contraseña si es necesario
-        if ($dto->getPassword() || strlen($dto->getPassword()) > 0) {
-            $hashedPassword = (new Password($dto->getPassword()))->getValue();
-            $user->setPassword($hashedPassword);
-        }
-
-        // Guardar cambios en el repositorio
-        $this->userRepository->save($user);
     }
 
     public function deleteUser(User $user): void

@@ -8,6 +8,7 @@ use App\Document\UserRegister;
 use App\DTO\RegisterUserDTO;
 use App\Message\SendEmailMessage;
 use App\Request\UserRegisterRequest;
+use App\Service\JsonResponseService;
 use App\Service\NotificationService;
 use App\Service\UserService;
 use Doctrine\ODM\MongoDB\DocumentManager;
@@ -21,59 +22,45 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class UserController extends AbstractController
 {
-    private UserService $userService;
-    private JWTTokenManagerInterface $jwtManager;
-    private DocumentManager $documentManager;
-    private NotificationService $notificationService;
-    private MessageBusInterface $bus;
-
     public function __construct(
-        UserService $userService,
-        JWTTokenManagerInterface $jwtManager,
-        DocumentManager $documentManager,
-        NotificationService $notificationService,
-        MessageBusInterface $bus,
-    ) {
-        $this->userService = $userService;
-        $this->jwtManager = $jwtManager;
-        $this->documentManager = $documentManager;
-        $this->notificationService = $notificationService;
-        $this->bus = $bus;
-    }
+        private UserService $userService,
+        private JWTTokenManagerInterface $jwtManager,
+        private DocumentManager $documentManager,
+        private NotificationService $notificationService,
+        private MessageBusInterface $bus,
+    ) {}
 
     #[Route('/api/user/register', name: 'api_register', methods: ['POST'])]
     public function register(Request $request): JsonResponse
     {
-        $registerRequest = UserRegisterRequest::fromRequest($request);
-
-        $dto = new RegisterUserDTO(
-            $registerRequest->getEmail(),
-            $registerRequest->getPassword(),
-            $registerRequest->getRoles(),
-        );
-
         try {
-            $user = $this->userService->registerUser($dto);
-            $this->bus->dispatch(
-                new SendEmailMessage(
-                    $user->getEmail(),
-                    'Bienvenido',
-                    'Gracias por registrarte.',
-                ),
+            $registerRequest = UserRegisterRequest::fromRequest($request);
+
+            $dto = new RegisterUserDTO(
+                $registerRequest->getEmail(),
+                $registerRequest->getPassword(),
+                $registerRequest->getRoles()
             );
-            $user_register = new UserRegister($user->getId(), $user->getEmail());
-            $this->documentManager->persist($user_register);
+
+            $user = $this->userService->registerUser($dto);
+
+            // Procesos asincrónicos: Email y Notificación
+            $this->bus->dispatch(
+                new SendEmailMessage($dto->getEmail(), 'Bienvenido', 'Gracias por registrarte.')
+            );
+
+            $userRegister = new UserRegister($user->getId(), $user->getEmail());
+            $this->documentManager->persist($userRegister);
             $this->documentManager->flush();
 
-            // Enviar notificación al canal de Redis
             $this->notificationService->sendNotification(
                 'user-notifications',
-                '¡Nuevo usuario registrado: ' . $user->getEmail() . '!',
+                '¡Nuevo usuario registrado: ' . $user->getEmail() . '!'
             );
 
-            return new JsonResponse(['message' => 'Usuario registrado con exito'], 201);
+            return JsonResponseService::success(['message' => 'Usuario registrado con éxito'], 201);
         } catch (Exception $e) {
-            return new JsonResponse(['error' => $e->getMessage()], 400);
+            return JsonResponseService::error($e->getMessage());
         }
     }
 
@@ -81,22 +68,19 @@ class UserController extends AbstractController
     public function edit(string $id, Request $request): JsonResponse
     {
         try {
-            // Parsear el Request usando un DTO o un Request personalizado
             $editRequest = UserRegisterRequest::fromRequest($request);
 
-            // Crear el DTO para editar el usuario
             $dto = new RegisterUserDTO(
                 $editRequest->getEmail(),
                 $editRequest->getPassword(),
                 $editRequest->getRoles()
             );
 
-            // Llamar al servicio de usuario para editar
             $this->userService->updateUser($id, $dto);
 
-            return new JsonResponse(['message' => 'Usuario editado con éxito'], 200);
+            return JsonResponseService::success(['message' => 'Usuario editado con éxito']);
         } catch (Exception $e) {
-            return new JsonResponse(['error' => $e->getMessage()], 400);
+            return JsonResponseService::error($e->getMessage());
         }
     }
 
@@ -107,13 +91,14 @@ class UserController extends AbstractController
             $user = $this->userService->getUserById($id);
 
             if (!$user) {
-                throw $this->createNotFoundException('Usuario no encontrado.');
+                return JsonResponseService::error('Usuario no encontrado.', 404);
             }
 
             $this->userService->deleteUser($user);
-            return new JsonResponse(['message' => 'Usuario eliminado con éxito'], 200);
+
+            return JsonResponseService::success(['message' => 'Usuario eliminado con éxito']);
         } catch (Exception $e) {
-            return new JsonResponse(['error' => $e->getMessage()], 400);
+            return JsonResponseService::error($e->getMessage());
         }
     }
 }

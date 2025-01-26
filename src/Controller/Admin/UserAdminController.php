@@ -3,8 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\DTO\RegisterUserDTO;
-use App\Request\UserRegisterRequest;
 use App\Service\UserService;
+use App\VO\Roles;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -36,9 +36,10 @@ class UserAdminController extends AbstractController
             $email = $request->request->get('email');
             $password = $request->request->get('password');
             $rolesString = $request->request->get('roles', 'ROLE_USER'); // Valor predeterminado si no existe
-            $roles = array_map('trim', explode(',', $rolesString));
+            $rolesArray = array_map('trim', explode(',', $rolesString));
+
             try {
-                $dto = new RegisterUserDTO($email, $password, $roles);
+                $dto = new RegisterUserDTO($email, $password, $rolesArray);
                 $this->userService->registerUser($dto);
 
                 $this->addFlash('success', 'Usuario creado exitosamente.');
@@ -70,24 +71,21 @@ class UserAdminController extends AbstractController
                 'multiple' => true,
                 'expanded' => true,
                 'label' => 'Roles',
+                'data' => $user->getRoles(), // Pre-seleccionar los roles actuales del usuario
             ])
             ->add('Guardar', SubmitType::class, ['attr' => ['class' => 'btn btn-primary']])
             ->getForm();
 
         $form->handleRequest($request);
 
-
-
         if ($form->isSubmitted() && $form->isValid()) {
-
             $email = $form->get('email')->getData();
-            $password = '';
-            $roles = $form->get('roles')->getData();
+            $roles = new Roles($form->get('roles')->getData());
 
-            $dto = new RegisterUserDTO($email, $password, $roles);
-            $this->userService->updateUser($id, $dto); // Usa tu servicio para guardar cambios
+            $dto = new RegisterUserDTO($email, '', $roles->getValue());
+            $this->userService->updateUser($id, $dto);
+
             $this->addFlash('success', 'Usuario actualizado correctamente.');
-
             return $this->redirectToRoute('admin_users');
         }
 
