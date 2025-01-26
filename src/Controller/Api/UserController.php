@@ -7,6 +7,7 @@ namespace App\Controller\Api;
 use App\Document\UserRegister;
 use App\DTO\RegisterUserDTO;
 use App\Request\UserRegisterRequest;
+use App\Service\NotificationService;
 use App\Service\UserService;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
@@ -20,15 +21,18 @@ class UserController extends AbstractController
     private UserService $userService;
     private JWTTokenManagerInterface $jwtManager;
     private DocumentManager $documentManager;
+    private NotificationService $notificationService;
 
     public function __construct(
         UserService $userService,
         JWTTokenManagerInterface $jwtManager,
         DocumentManager $documentManager,
+        NotificationService $notificationService,
     ) {
         $this->userService = $userService;
         $this->jwtManager = $jwtManager;
         $this->documentManager = $documentManager;
+        $this->notificationService = $notificationService;
     }
 
     #[Route('/api/user/register', name: 'api_register', methods: ['POST'])]
@@ -39,13 +43,17 @@ class UserController extends AbstractController
         $dto = new RegisterUserDTO($registerRequest->getEmail(), $registerRequest->getPassword());
 
         try {
+            $this->notificationService->sendNotification('user-notifications', '¡Nuevo usuario registrado: ' . $dto->getEmail() . '!');
             $user = $this->userService->registerUser($dto);
 
             $user_register = new UserRegister($user->getId(), $user->getEmail());
             $this->documentManager->persist($user_register);
             $this->documentManager->flush();
 
-            return new JsonResponse(['message' => 'User registered successfully'], 201);
+            // Enviar notificación al canal de Redis
+
+
+            return new JsonResponse(['message' => 'Usuario registrado con exito'], 201);
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], 400);
         }

@@ -15,3 +15,9 @@ services:
 
     App\Repository\UserRepositoryInterface:
         alias: App\Repository\UserRepository
+
+    Redis:
+        class: Redis
+        factory: ['App\Factory\RedisFactory', 'create']
+        arguments:
+            - '%env(REDIS_URL)%' # Usa la URL configurada en tu .env

@@ -35,6 +35,15 @@
             "ref": "873fc0ba74e93e1b9712b732b7d580e418558d2e"
         }
     },
+    "enqueue/amqp-bunny": {
+        "version": "0.10",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "0.7",
+            "ref": "fa1a9a0c5ad7a58ced6401f2b9d66d6078679715"
+        }
+    },
     "friends-of-behat/symfony-extension": {
         "version": "2.6",
         "recipe": {
