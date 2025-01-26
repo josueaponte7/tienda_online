@@ -15,7 +15,7 @@ class ProtectedController extends AbstractController
     {
         return new JsonResponse([
             'message' => 'Welcome to the protected route!',
-            'user' => $this->getUser()->getUserIdentifier()
+            'user' => $this->getUser()->getUserIdentifier(),
         ]);
     }
 }

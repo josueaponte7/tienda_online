@@ -23,6 +23,16 @@ security:
             pattern: ^/api/test-email
             stateless: true
             security: false
+        index-data:
+            pattern: ^/api/index-data
+            stateless: true
+            security: false
+
+        search-data:
+            pattern: ^/api/search-data
+            stateless: true
+            security: false
+
         api:
             pattern: ^/api
             stateless: true
@@ -43,6 +53,8 @@ security:
         - { path: ^/api/user/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/user/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/test-email, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/index-data, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/search-data, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:

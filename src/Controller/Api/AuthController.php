@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 namespace App\Controller\Api;
+
 use App\Entity\User;
+use App\Service\ElasticsearchService;
 use App\Service\RedisService;
 use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
@@ -15,13 +17,20 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class AuthController extends AbstractController
 {
+    private ElasticsearchService $elasticsearchService;
+
+    public function __construct(ElasticsearchService $elasticsearchService)
+    {
+        $this->elasticsearchService = $elasticsearchService;
+    }
+
     #[Route('/api/user/login', name: 'api_user_login', methods: ['POST'])]
     public function login(
         Request $request,
         EntityManagerInterface $entityManager,
         UserPasswordHasherInterface $passwordHasher,
         JWTTokenManagerInterface $jwtManager,
-        RedisService $redisService
+        RedisService $redisService,
     ): JsonResponse {
         // Decodificar la solicitud JSON
         $data = json_decode($request->getContent(), true);
@@ -29,7 +38,7 @@ class AuthController extends AbstractController
         // Validar los campos necesarios
         if (!isset($data['email'], $data['password'])) {
             $attempts = $redisService->incrementLoginAttempts($data['email']);
-            if($attempts > 0){
+            if ($attempts > 0) {
                 return new JsonResponse(['error' => 'Invalid credentials', 'attempts' => $attempts,], 401);
             }
 
@@ -48,6 +57,13 @@ class AuthController extends AbstractController
             return new JsonResponse(['error' => 'Invalid credentials.'], 401);
         }
 
+        $data = [
+            'user' => $user->getEmail(),
+            'action' => 'login',
+            'timestamp' => date('c'),
+        ];
+
+        $this->elasticsearchService->index('logs', $data);
         // Generar el token JWT
         $token = $jwtManager->create($user);
 

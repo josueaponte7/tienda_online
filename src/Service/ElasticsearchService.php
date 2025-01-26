@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use Elasticsearch\ClientBuilder;
+use Elastic\Elasticsearch\Client;
+use Elastic\Elasticsearch\ClientBuilder;
 
 class ElasticsearchService
 {
-    private $client;
+    private Client $client;
 
     public function __construct()
     {
-        $this->client = ClientBuilder::create()->setHosts(['http://localhost:9200'])->build();
+        // Crea el cliente usando la versión actual del paquete
+        $this->client = ClientBuilder::create()
+            ->setHosts(['http://localhost:9200'])
+            ->build();
     }
 
     public function index(string $index, array $data): void
@@ -28,6 +32,6 @@ class ElasticsearchService
         return $this->client->search([
             'index' => $index,
             'body' => $query,
-        ]);
+        ])->asArray(); // Convierte la respuesta en un array
     }
 }

@@ -8,8 +8,8 @@ use App\Message\SendEmailMessage;
 use App\Service\MailService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Controlador para probar el envío de correos electrónicos.
@@ -17,7 +17,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * Este controlador utiliza Symfony Messenger para manejar mensajes
  * relacionados con el envío de correos electrónicos.
  */
-
 class EmailTestController extends AbstractController
 {
     private MailService $mailService;
@@ -28,8 +27,6 @@ class EmailTestController extends AbstractController
     }
 
     #[Route('/api/test-email', name: 'test_email', methods: ['GET'])]
-
-
     public function testEmail(MessageBusInterface $bus): JsonResponse
     {
         $bus->dispatch(new SendEmailMessage('test@example.com'));

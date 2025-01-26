@@ -10,11 +10,10 @@ use App\Factory\UserFactory;
 use App\Repository\UserRepositoryInterface;
 use App\VO\Email;
 use App\VO\Password;
+use Exception;
 
 class UserService
 {
-
-
     private UserRepositoryInterface $userRepository;
 
     public function __construct(UserRepositoryInterface $userRepository)
@@ -24,11 +23,10 @@ class UserService
 
     public function registerUser(RegisterUserDTO $dto): User
     {
-
         $email = new Email($dto->email);
 
         if ($this->userRepository->existsByEmail($email->getValue())) {
-            throw new \Exception('User already exists.');
+            throw new Exception('User already exists.');
         }
 
         $password = new Password($dto->password);

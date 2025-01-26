@@ -2,11 +2,12 @@
 
 namespace App\Service;
 
+use Redis;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
 
 class RedisService
 {
-    private \Redis $redis;
+    private Redis $redis;
 
     public function __construct()
     {

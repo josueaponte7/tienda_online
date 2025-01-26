@@ -33,7 +33,7 @@ class UserRepository extends ServiceEntityRepository implements UserRepositoryIn
      */
     public function existsByEmail(string $email): bool
     {
-        return (bool) $this->createQueryBuilder('u')
+        return (bool)$this->createQueryBuilder('u')
             ->select('1')
             ->andWhere('u.email = :email')
             ->setParameter('email', $email)

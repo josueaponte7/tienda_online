@@ -11,13 +11,10 @@ class UserRegister
 {
     #[MongoDB\Id]
     private string $id;
-
     #[MongoDB\Field(type: 'string')]
     private string $userId;
-
     #[MongoDB\Field(type: 'string')]
     private string $email;
-
     #[MongoDB\Field(type: 'date')]
     private \DateTime $dateRegistration;
 
@@ -42,6 +39,4 @@ class UserRegister
     {
         return $this->dateRegistration;
     }
-
-
 }

@@ -6,14 +6,15 @@ namespace App\MessageHandler;
 
 use App\Message\SendEmailMessage;
 use App\Service\MailService;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
 class SendEmailMessageHandler
 {
     private LoggerInterface $logger;
     private MailService $mailService;
+
     public function __construct(LoggerInterface $logger, MailService $mailService)
     {
         $this->logger = $logger;
@@ -25,7 +26,7 @@ class SendEmailMessageHandler
         $this->mailService->sendEmail(
             $message->getEmail(),
             'De nuevo AJAAA',
-            '<h1>¡EPALE!</h1><p>AQUII.</p>'
+            '<h1>¡EPALE!</h1><p>AQUII.</p>',
         );
         $this->logger->info(sprintf("INFO: Enviando email a: %s", $message->getEmail()));
     }

@@ -16,13 +16,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\Column(type: "string", length: 26, unique: true)]
     private string $id;
-
     #[ORM\Column(type: "string", length: 180, unique: true)]
     private string $email;
-
     #[ORM\Column(type: "string")]
     private string $password;
-
     #[ORM\Column(type: "json")]
     private array $roles = [];
 
@@ -43,7 +40,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return new self($email->getValue(), $password->getValue(), $roles);
     }
-
 
     /**
      * Obtener el identificador único del usuario.
