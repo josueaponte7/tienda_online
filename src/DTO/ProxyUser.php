@@ -9,6 +9,7 @@ class ProxyUser
     public function __construct(
         public ?string $email = null,
         public ?string $password = null,
-        public array $roles = []
-    ) {}
+        public array $roles = [],
+    ) {
+    }
 }

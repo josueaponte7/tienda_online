@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Request;
 
+use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
 
 final class UserRegisterRequest
@@ -12,18 +13,30 @@ final class UserRegisterRequest
     private string $password;
     private array $roles;
 
-    public function __construct(Request $request)
+    public function __construct(string $email, string $password, array $roles = ['ROLE_USER'])
+    {
+        $this->email = $email;
+        $this->password = $password;
+        $this->roles = $roles;
+    }
+
+    public static function fromRequest(Request $request): self
     {
         $data = json_decode($request->getContent(), true);
 
-        if (!isset($data['email']) && !isset($data['password'])) {
-            throw new \InvalidArgumentException('Email and password are required.');
+        if (!is_array($data)) {
+            throw new InvalidArgumentException('Invalid JSON format.');
         }
 
-        $this->email = $data['email'];
-        $this->password = $data['password'];
+        $email = $data['email'] ?? throw new InvalidArgumentException('Email is required.');
+        $password = $data['password'] ?? throw new InvalidArgumentException('Password is required.');
+
         $rolesString = $data['roles'] ?? '';
-        $this->roles = $this->processRoles($rolesString);
+        $roles = is_array($rolesString)
+            ? $rolesString
+            : array_map('trim', explode(',', $rolesString));
+
+        return new self($email, $password, $roles);
     }
 
     public function getEmail(): string
@@ -40,17 +53,4 @@ final class UserRegisterRequest
     {
         return $this->roles;
     }
-
-    private function processRoles(mixed $rolesString): array
-    {
-        if (is_array($rolesString)) {
-            $rolesString = implode(',', $rolesString);
-        }
-
-        return $rolesString
-            ? array_map('trim', explode(',', $rolesString))
-            : ['ROLE_USER']; // Valor predeterminado si no hay roles
-    }
-
-
 }

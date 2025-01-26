@@ -21,6 +21,7 @@ class EmailTestController extends AbstractController
 {
     private MailService $mailService;
     private MessageBusInterface $bus;
+
     public function __construct(MessageBusInterface $bus)
     {
         $this->bus = $bus;
@@ -29,11 +30,13 @@ class EmailTestController extends AbstractController
     #[Route('/api/test-email', name: 'test_email', methods: ['GET'])]
     public function testEmail(MessageBusInterface $bus): JsonResponse
     {
-        $this->bus->dispatch(new SendEmailMessage(
-            'test@example.com',
-            'Bienvenido',
-            'Gracias por registrarte.'
-        ));
+        $this->bus->dispatch(
+            new SendEmailMessage(
+                'test@example.com',
+                'Bienvenido',
+                'Gracias por registrarte.',
+            ),
+        );
         return new JsonResponse(['message' => 'Correo enviado correctamente']);
     }
 }

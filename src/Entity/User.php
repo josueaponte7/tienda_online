@@ -5,13 +5,14 @@ namespace App\Entity;
 use App\VO\Email;
 use App\VO\Password;
 use Doctrine\ORM\Mapping as ORM;
+use JsonSerializable;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Uid\Ulid;
 
 #[ORM\Entity]
 #[ORM\Table(name: "users")]
-class User implements UserInterface, PasswordAuthenticatedUserInterface, \JsonSerializable
+class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSerializable
 {
     #[ORM\Id]
     #[ORM\Column(type: "string", length: 26, unique: true)]

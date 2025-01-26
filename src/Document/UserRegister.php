@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Document;
 
+use DateTime;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 
 #[MongoDB\Document]
@@ -16,13 +17,13 @@ class UserRegister
     #[MongoDB\Field(type: 'string')]
     private string $email;
     #[MongoDB\Field(type: 'date')]
-    private \DateTime $dateRegistration;
+    private DateTime $dateRegistration;
 
     public function __construct(string $userId, string $email)
     {
         $this->userId = $userId;
         $this->email = $email;
-        $this->dateRegistration = new \DateTime();
+        $this->dateRegistration = new DateTime();
     }
 
     public function getUserId(): string
@@ -35,7 +36,7 @@ class UserRegister
         return $this->email;
     }
 
-    public function getDateRegistration(): \DateTime
+    public function getDateRegistration(): DateTime
     {
         return $this->dateRegistration;
     }

@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\DTO\RegisterUserDTO;
 use App\Service\UserService;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,7 +39,7 @@ class UserAdminController extends AbstractController
 
                 $this->addFlash('success', 'Usuario creado exitosamente.');
                 return $this->redirectToRoute('admin_users');
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->addFlash('error', $e->getMessage());
             }
         }

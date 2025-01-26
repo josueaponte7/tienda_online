@@ -11,6 +11,7 @@ use App\Request\UserRegisterRequest;
 use App\Service\NotificationService;
 use App\Service\UserService;
 use Doctrine\ODM\MongoDB\DocumentManager;
+use Exception;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -43,28 +44,35 @@ class UserController extends AbstractController
     #[Route('/api/user/register', name: 'api_register', methods: ['POST'])]
     public function register(Request $request, DocumentManager $dm): JsonResponse
     {
-        $registerRequest = new UserRegisterRequest($request);
+        $registerRequest = UserRegisterRequest::fromRequest($request);
 
-        $dto = new RegisterUserDTO($registerRequest->getEmail(), $registerRequest->getPassword(), $registerRequest->getRoles());
+        $dto = new RegisterUserDTO(
+            $registerRequest->getEmail(),
+            $registerRequest->getPassword(),
+            $registerRequest->getRoles(),
+        );
 
         try {
-
-
             $user = $this->userService->registerUser($dto);
-            $this->bus->dispatch(new SendEmailMessage(
-                $user->getEmail(),
-                'Bienvenido',
-                'Gracias por registrarte.'
-            ));
+            $this->bus->dispatch(
+                new SendEmailMessage(
+                    $user->getEmail(),
+                    'Bienvenido',
+                    'Gracias por registrarte.',
+                ),
+            );
             $user_register = new UserRegister($user->getId(), $user->getEmail());
             $this->documentManager->persist($user_register);
             $this->documentManager->flush();
 
             // Enviar notificación al canal de Redis
-            $this->notificationService->sendNotification('user-notifications', '¡Nuevo usuario registrado: ' . $user->getEmail() . '!');
+            $this->notificationService->sendNotification(
+                'user-notifications',
+                '¡Nuevo usuario registrado: ' . $user->getEmail() . '!',
+            );
 
             return new JsonResponse(['message' => 'Usuario registrado con exito'], 201);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], 400);
         }
     }
