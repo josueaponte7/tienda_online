@@ -45,7 +45,7 @@ class UserController extends AbstractController
     {
         $registerRequest = new UserRegisterRequest($request);
 
-        $dto = new RegisterUserDTO($registerRequest->getEmail(), $registerRequest->getPassword());
+        $dto = new RegisterUserDTO($registerRequest->getEmail(), $registerRequest->getPassword(), $registerRequest->getRoles());
 
         try {
 

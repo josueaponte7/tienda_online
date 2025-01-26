@@ -10,6 +10,7 @@ final class UserRegisterRequest
 {
     private string $email;
     private string $password;
+    private array $roles;
 
     public function __construct(Request $request)
     {
@@ -21,6 +22,8 @@ final class UserRegisterRequest
 
         $this->email = $data['email'];
         $this->password = $data['password'];
+        $rolesString = $data['roles'] ?? '';
+        $this->roles = $this->processRoles($rolesString);
     }
 
     public function getEmail(): string
@@ -32,4 +35,22 @@ final class UserRegisterRequest
     {
         return $this->password;
     }
+
+    public function getRoles(): array
+    {
+        return $this->roles;
+    }
+
+    private function processRoles(mixed $rolesString): array
+    {
+        if (is_array($rolesString)) {
+            $rolesString = implode(',', $rolesString);
+        }
+
+        return $rolesString
+            ? array_map('trim', explode(',', $rolesString))
+            : ['ROLE_USER']; // Valor predeterminado si no hay roles
+    }
+
+
 }

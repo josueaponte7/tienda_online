@@ -24,14 +24,20 @@ class UserService
     public function registerUser(RegisterUserDTO $dto): User
     {
         $email = new Email($dto->email);
+        $roles = $dto->roles;
 
         if ($this->userRepository->existsByEmail($email->getValue())) {
             throw new Exception('User already exists.');
         }
 
         $password = new Password($dto->password);
-        $user = UserFactory::create($email, $password);
+        $user = UserFactory::create($email, $password, $roles);
         $this->userRepository->save($user);
         return $this->userRepository->findByEmail($dto->email);
+    }
+
+    public function getAllUsers(): array
+    {
+        return $this->userRepository->findAllUsers();
     }
 }

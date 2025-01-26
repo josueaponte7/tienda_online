@@ -14,6 +14,7 @@
         "doctrine/mongodb-odm": "*",
         "doctrine/mongodb-odm-bundle": "*",
         "doctrine/orm": "^3.3.1",
+        "easycorp/easyadmin-bundle": "^4.23",
         "elasticsearch/elasticsearch": "^8.17",
         "enqueue/amqp-bunny": "^0.10.19",
         "lexik/jwt-authentication-bundle": "^3.1.1",
