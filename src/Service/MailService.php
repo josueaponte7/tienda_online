@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Message\SendEmailMessage;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 
@@ -16,14 +17,13 @@ class MailService
         $this->mailer = $mailer;
     }
 
-    public function sendEmail(string $to, string $subject, string $content): void
+    public function sendEmail(SendEmailMessage $message): void
     {
         $email = (new Email())
             ->from('no-reply@tienda-online.local')
-            ->to($to)
-            ->subject($subject)
-            ->text($content)
-            ->html($content);
+            ->to($message->getEmail())
+            ->subject($message->getSubject())
+            ->text($message->getContent());
 
         $this->mailer->send($email);
     }

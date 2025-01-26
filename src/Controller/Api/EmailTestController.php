@@ -20,16 +20,20 @@ use Symfony\Component\Routing\Annotation\Route;
 class EmailTestController extends AbstractController
 {
     private MailService $mailService;
-
-    public function __construct(MailService $mailService)
+    private MessageBusInterface $bus;
+    public function __construct(MessageBusInterface $bus)
     {
-        $this->mailService = $mailService;
+        $this->bus = $bus;
     }
 
     #[Route('/api/test-email', name: 'test_email', methods: ['GET'])]
     public function testEmail(MessageBusInterface $bus): JsonResponse
     {
-        $bus->dispatch(new SendEmailMessage('test@example.com'));
+        $this->bus->dispatch(new SendEmailMessage(
+            'test@example.com',
+            'Bienvenido',
+            'Gracias por registrarte.'
+        ));
         return new JsonResponse(['message' => 'Correo enviado correctamente']);
     }
 }

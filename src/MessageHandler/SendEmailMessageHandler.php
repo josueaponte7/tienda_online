@@ -23,11 +23,11 @@ class SendEmailMessageHandler
 
     public function __invoke(SendEmailMessage $message): void
     {
-        $this->mailService->sendEmail(
+        $this->mailService->sendEmail(new SendEmailMessage(
             $message->getEmail(),
-            'De nuevo AJAAA',
-            '<h1>¡EPALE!</h1><p>AQUII.</p>',
-        );
+            'Bienvenido',
+            'Gracias por registrarte.'
+        ));
         $this->logger->info(sprintf("INFO: Enviando email a: %s", $message->getEmail()));
     }
 }
