@@ -32,10 +32,10 @@ final class UserRegisterRequest
         $password = $data['password'] ?? throw new InvalidArgumentException('Password is required.');
 
         $rolesString = $data['roles'] ?? '';
-        $roles = is_array($rolesString)
-            ? $rolesString
-            : array_map('trim', explode(',', $rolesString));
 
+        $roles = strlen($rolesString) == 0
+            ? []
+            : array_map('trim', explode(',', $rolesString));
         return new self($email, $password, $roles);
     }
 
