@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<ruleset name="Custom Ruleset">
+    <description>Custom PHP CodeSniffer ruleset to disable doc comment warnings.</description>
+
+    <!-- Usa un estándar como base, por ejemplo, PSR-12 -->
+    <rule ref="PSR12" />
+
+    <!-- Desactiva la regla de comentarios para funciones -->
+    <rule ref="PEAR.Commenting.FunctionComment.Missing">
+        <exclude-pattern>*</exclude-pattern>
+    </rule>
+</ruleset>

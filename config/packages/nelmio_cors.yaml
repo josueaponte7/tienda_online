@@ -1,0 +1,12 @@
+nelmio_cors:
+    defaults:
+        allow_credentials: true
+        allow_origin: ['http://tienda-online.local'] # Cambia esto a tu dominio
+        allow_headers: ['Content-Type', 'Authorization']
+        allow_methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+        max_age: 3600
+    paths:
+        '^/api/': # Aplica CORS solo a las rutas bajo /api
+            allow_origin: ['http://tienda-online.local']
+            allow_headers: ['Content-Type', 'Authorization']
+            allow_methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
