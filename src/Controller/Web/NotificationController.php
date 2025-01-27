@@ -13,6 +13,6 @@ class NotificationController extends AbstractController
     #[Route('/notifications', name: 'notifications', methods: ['GET'])]
     public function index(): Response
     {
-        return $this->render('user/notifications.html.twig');
+        return $this->render('admin/users/notifications.html.twig');
     }
 }

@@ -63,14 +63,16 @@ class AuthController extends AbstractController
             'timestamp' => date('c'),
         ];
 
+        //TODO: IMPORTANTE Enviar data a ELASTICSEARCH DESCOMENTAR DESPUES
         $this->elasticsearchService->index('logs', $data);
+
         // Generar el token JWT
         $token = $jwtManager->create($user);
 
+        //REFACTOR: prueba de etiqueta refactor
+
+        //TEST: hola
         $redisService->storeToken($user->getId(), $token);
-        //dump('UNO:'.$token);
-        //dump('DOS:'.$redisService->getToken($user->getId()));
-        // Devolver la respuesta con el token
         return new JsonResponse(['token' => $redisService->getToken($user->getId()),]);
     }
 }

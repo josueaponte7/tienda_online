@@ -7,7 +7,7 @@ namespace App\Controller\Api;
 use App\Document\UserRegister;
 use App\DTO\RegisterUserDTO;
 use App\Message\SendEmailMessage;
-use App\Request\UserRegisterRequest;
+use App\Request\Api\UserRegisterRequest;
 use App\Service\JsonResponseService;
 use App\Service\NotificationService;
 use App\Service\UserService;

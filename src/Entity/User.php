@@ -92,7 +92,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
 
     public function eraseCredentials(): void
     {
-        // TODO: Implement eraseCredentials() method.
+        // algo
     }
 
     public function getUserIdentifier(): string

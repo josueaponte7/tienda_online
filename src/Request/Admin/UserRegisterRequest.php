@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Request;
+namespace App\Request\Admin;
 
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,21 +22,12 @@ final class UserRegisterRequest
 
     public static function fromRequest(Request $request): self
     {
-        $data = json_decode($request->getContent(), true);
+        $email = $request->request->get('email');
+        $password = $request->request->get('password');
+        $rolesString = $request->request->get('roles', 'ROLE_USER');
+        $rolesArray = array_map('trim', explode(',', $rolesString));
 
-        if (!is_array($data)) {
-            throw new InvalidArgumentException('Invalid JSON format.');
-        }
-
-        $email = $data['email'] ?? throw new InvalidArgumentException('Email is required.');
-        $password = $data['password'] ?? throw new InvalidArgumentException('Password is required.');
-
-        $rolesString = $data['roles'] ?? '';
-
-        $roles = strlen($rolesString) == 0
-            ? []
-            : array_map('trim', explode(',', $rolesString));
-        return new self($email, $password, $roles);
+        return new self($email, $password, $rolesArray);
     }
 
     public function getEmail(): string
