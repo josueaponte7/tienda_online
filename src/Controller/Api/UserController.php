@@ -4,30 +4,20 @@ declare(strict_types=1);
 
 namespace App\Controller\Api;
 
-use App\Document\UserRegister;
 use App\DTO\RegisterUserDTO;
-use App\Message\SendEmailMessage;
 use App\Request\Api\UserRegisterRequest;
 use App\Service\JsonResponseService;
-use App\Service\NotificationService;
-use App\Service\UserService;
-use Doctrine\ODM\MongoDB\DocumentManager;
+use App\Service\UserRegistrationService;
 use Exception;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class UserController extends AbstractController
 {
     public function __construct(
-        private UserService $userService,
-        private JWTTokenManagerInterface $jwtManager,
-        private DocumentManager $documentManager,
-        private NotificationService $notificationService,
-        private MessageBusInterface $bus,
+        private UserRegistrationService $userRegistrationService,
     ) {}
 
     #[Route('/api/user/register', name: 'api_register', methods: ['POST'])]
@@ -42,21 +32,8 @@ class UserController extends AbstractController
                 $registerRequest->getRoles()
             );
 
-            $user = $this->userService->registerUser($dto);
-
-            // Procesos asincrónicos: Email y Notificación
-            $this->bus->dispatch(
-                new SendEmailMessage($dto->getEmail(), 'Bienvenido', 'Gracias por registrarte.')
-            );
-
-            $userRegister = new UserRegister($user->getId(), $user->getEmail());
-            $this->documentManager->persist($userRegister);
-            $this->documentManager->flush();
-
-            $this->notificationService->sendNotification(
-                'user-notifications',
-                '¡Nuevo usuario registrado: ' . $user->getEmail() . '!'
-            );
+            // Usar el servicio para manejar el registro
+            $this->userRegistrationService->registerUser($dto);
 
             return JsonResponseService::success(['message' => 'Usuario registrado con éxito'], 201);
         } catch (Exception $e) {

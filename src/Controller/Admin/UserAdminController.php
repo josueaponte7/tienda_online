@@ -2,35 +2,26 @@
 
 namespace App\Controller\Admin;
 
-use App\Document\UserRegister;
 use App\DTO\RegisterUserDTO;
-use App\Message\SendEmailMessage;
 use App\Request\Admin\UserRegisterRequest;
-use App\Service\NotificationService;
+use App\Service\UserRegistrationService;
 use App\Service\UserService;
 use App\VO\Roles;
-use Doctrine\ODM\MongoDB\DocumentManager;
 use Exception;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class UserAdminController extends AbstractController
 {
     public function __construct(
+        private UserRegistrationService $userRegistrationService,
         private UserService $userService,
-        private JWTTokenManagerInterface $jwtManager,
-        private DocumentManager $documentManager,
-        private NotificationService $notificationService,
-        private MessageBusInterface $bus,
-    )
-    {
+    ) {
     }
 
     #[Route('/admin/users', name: 'admin_users')]
@@ -52,24 +43,12 @@ class UserAdminController extends AbstractController
                 $dto = new RegisterUserDTO(
                     $registerRequest->getEmail(),
                     $registerRequest->getPassword(),
-                    $registerRequest->getRoles()
+                    $registerRequest->getRoles(),
                 );
 
-                $user = $this->userService->registerUser($dto);
+                // Usar el servicio para manejar el registro
+                $this->userRegistrationService->registerUser($dto);
 
-                // Procesos asincrónicos: Email y Notificación
-                $this->bus->dispatch(
-                    new SendEmailMessage($dto->getEmail(), 'Bienvenido', 'Gracias por registrarte.')
-                );
-
-                $userRegister = new UserRegister($user->getId(), $user->getEmail());
-                $this->documentManager->persist($userRegister);
-                $this->documentManager->flush();
-
-                $this->notificationService->sendNotification(
-                    'user-notifications',
-                    '¡Nuevo usuario registrado: ' . $user->getEmail() . '!'
-                );
                 $this->addFlash('success', 'Usuario creado exitosamente.');
                 return $this->redirectToRoute('admin_users');
             } catch (Exception $e) {
