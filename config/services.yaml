@@ -1,4 +1,9 @@
 parameters:
+    rabbitmq.host: '%env(RABBITMQ_HOST)%'
+    rabbitmq.port: '%env(RABBITMQ_PORT)%'
+    rabbitmq.user: '%env(RABBITMQ_USER)%'
+    rabbitmq.password: '%env(RABBITMQ_PASSWORD)%'
+    rabbitmq.vhost: '%env(RABBITMQ_VHOST)%'
 
 services:
 
@@ -20,4 +25,11 @@ services:
         class: Redis
         factory: ['App\Factory\RedisFactory', 'create']
         arguments:
-            - '%env(REDIS_URL)%' # Usa la URL configurada en tu .env
+            - '%env(REDIS_URL)%'
+
+    App\Service\RabbitMQService:
+        arguments:
+            $host: '%rabbitmq.host%'
+            $port: '%rabbitmq.port%'
+            $user: '%rabbitmq.user%'
+            $password: '%rabbitmq.password%'

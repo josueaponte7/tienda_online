@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Mime\Email;
 
 /**
  * Controlador para probar el envío de correos electrónicos.
@@ -30,11 +31,12 @@ class EmailTestController extends AbstractController
     #[Route('/api/test-email', name: 'test_email', methods: ['GET'])]
     public function testEmail(MessageBusInterface $bus): JsonResponse
     {
+
         $this->bus->dispatch(
             new SendEmailMessage(
-                'test@example.com',
-                'Bienvenido',
-                'Gracias por registrarte.',
+                'josue@example.com',
+                'Hola, Bienvenido',
+                'Gracias por registrarte Josue Aponte.',
             ),
         );
         return new JsonResponse(['message' => 'Correo enviado correctamente']);

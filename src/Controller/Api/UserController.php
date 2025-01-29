@@ -7,6 +7,7 @@ namespace App\Controller\Api;
 use App\DTO\RegisterUserDTO;
 use App\Request\Api\UserRegisterRequest;
 use App\Service\JsonResponseService;
+use App\Service\LoggerService;
 use App\Service\UserRegistrationService;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,6 +19,7 @@ class UserController extends AbstractController
 {
     public function __construct(
         private UserRegistrationService $userRegistrationService,
+        private LoggerService $loggerService
     ) {}
 
     #[Route('/api/user/register', name: 'api_register', methods: ['POST'])]
@@ -32,11 +34,18 @@ class UserController extends AbstractController
                 $registerRequest->getRoles()
             );
 
+            $this->loggerService->logInfo('Usuario registrado exitosamente.', [
+                'email' => 'test@example.com',
+                'timestamp' => date('c'),
+            ]);
             // Usar el servicio para manejar el registro
             $this->userRegistrationService->registerUser($dto);
 
             return JsonResponseService::success(['message' => 'Usuario registrado con éxito'], 201);
         } catch (Exception $e) {
+            $this->loggerService->logError('Error al registrar usuario.', [
+                'error' => $e->getMessage(),
+            ]);
             return JsonResponseService::error($e->getMessage());
         }
     }

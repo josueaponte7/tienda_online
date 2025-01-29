@@ -23,7 +23,7 @@ class ElasticsearchController extends AbstractController
     {
         // Datos de prueba
         $data = [
-            'user' => 'Josue Daniel Aponte Segovia',
+            'user' => 'Juan Gabriel Redondo Cuadrado',
             'action' => 'login',
             'timestamp' => date('c'),
         ];
@@ -39,7 +39,7 @@ class ElasticsearchController extends AbstractController
         $query = [
             'query' => [
                 'match' => [
-                    'user' => 'Josue Daniel',
+                    'user' => 'Juan Gabriel',
                 ],
             ],
         ];

@@ -86,6 +86,15 @@
             "config/packages/nelmio_cors.yaml"
         ]
     },
+    "php-amqplib/rabbitmq-bundle": {
+        "version": "2.17",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "1.12",
+            "ref": "ce3ca2e4577270c4f518539aa6b9e878998fcfef"
+        }
+    },
     "php-http/discovery": {
         "version": "1.20",
         "recipe": {
@@ -206,6 +215,15 @@
         "files": [
             "config/packages/mailer.yaml"
         ]
+    },
+    "symfony/mailtrap-mailer": {
+        "version": "7.2",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "7.2",
+            "ref": "e1d25e0fab8778b977233aff6762d3791eab3155"
+        }
     },
     "symfony/maker-bundle": {
         "version": "1.62",

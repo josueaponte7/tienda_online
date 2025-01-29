@@ -11,21 +11,23 @@ use App\Repository\UserRepositoryInterface;
 use App\VO\Email;
 use App\VO\Password;
 use Exception;
+use Psr\Log\LoggerInterface;
 
 class UserService
 {
-    private UserRepositoryInterface $userRepository;
-
-    public function __construct(UserRepositoryInterface $userRepository)
-    {
-        $this->userRepository = $userRepository;
+    public function __construct(
+        private UserRepositoryInterface $userRepository,
+        private LoggerInterface $logger,
+    ) {
     }
 
     public function registerUser(RegisterUserDTO $dto): User
     {
+        $this->logger->info("Intentando registrar usuario: {$dto->getEmail()}");
         $email = new Email($dto->email);
 
         if ($this->userRepository->existsByEmail($email->getValue())) {
+            $this->logger->error("El usuario ya existe: {$dto->getEmail()}");
             throw new Exception('User already exists.');
         }
 

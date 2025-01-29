@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Monitor de Colas{% endblock %}
+
+{% block body %}
+    <h1>Monitor de Colas</h1>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Cola</th>
+            <th>Mensajes Pendientes</th>
+            <th>Consumidores</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for queue, info in queues %}
+            <tr>
+                <td>{{ queue }}</td>
+                <td>{{ info.message_count }}</td>
+                <td>{{ info.consumer_count }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('admin_dashboard') }}" class="btn btn-secondary mt-3">Volver al Dashboard</a>
+{% endblock %}

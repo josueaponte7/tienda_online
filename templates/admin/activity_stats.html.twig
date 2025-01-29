@@ -1,0 +1,17 @@
+<h1>Estadísticas de Actividad</h1>
+<table>
+    <thead>
+    <tr>
+        <th>Usuario</th>
+        <th>Logins</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for stat in activityStats %}
+        <tr>
+            <td>{{ stat.user }}</td>
+            <td>{{ stat.logins }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

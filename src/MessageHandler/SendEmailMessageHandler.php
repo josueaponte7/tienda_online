@@ -26,8 +26,8 @@ class SendEmailMessageHandler
         $this->mailService->sendEmail(
             new SendEmailMessage(
                 $message->getEmail(),
-                'Bienvenido',
-                'Gracias por registrarte.',
+                $message->getSubject(),
+                $message->getContent(),
             ),
         );
         $this->logger->info(sprintf("INFO: Enviando email a: %s", $message->getEmail()));
