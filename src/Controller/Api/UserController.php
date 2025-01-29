@@ -34,10 +34,6 @@ class UserController extends AbstractController
                 $registerRequest->getRoles()
             );
 
-            $this->loggerService->logInfo('Usuario registrado exitosamente.', [
-                'email' => 'test@example.com',
-                'timestamp' => date('c'),
-            ]);
             // Usar el servicio para manejar el registro
             $this->userRegistrationService->registerUser($dto);
 

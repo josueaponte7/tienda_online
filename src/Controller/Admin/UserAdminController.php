@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\DTO\RegisterUserDTO;
 use App\Request\Admin\UserRegisterRequest;
+use App\Service\LoggerService;
 use App\Service\UserRegistrationService;
 use App\Service\UserService;
 use App\VO\Roles;
@@ -21,6 +22,7 @@ class UserAdminController extends AbstractController
     public function __construct(
         private UserRegistrationService $userRegistrationService,
         private UserService $userService,
+        private LoggerService $loggerService
     ) {
     }
 
@@ -28,6 +30,10 @@ class UserAdminController extends AbstractController
     public function index(): Response
     {
         $users = $this->userService->getAllUsers();
+        $this->loggerService->logInfo('Acceso al administrador de usuarios.', [
+            'acceso' => 'administador',
+            'timestamp' => date('c'),
+        ]);
         return $this->render('admin/users/index.html.twig', [
             'users' => $users,
         ]);

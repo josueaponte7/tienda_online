@@ -19,6 +19,7 @@ class UserRegistrationService
         private DocumentManager $documentManager,
         private NotificationService $notificationService,
         private MessageBusInterface $bus,
+        private LoggerService $loggerService
     ) {
     }
 
@@ -38,6 +39,11 @@ class UserRegistrationService
             $userRegister = new UserRegister($user->getId(), $user->getEmail());
             $this->documentManager->persist($userRegister);
             $this->documentManager->flush();
+
+            $this->loggerService->logInfo('Usuario registrado exitosamente.', [
+                'email' => $dto->getEmail(),
+                'timestamp' => date('c'),
+            ]);
 
             // Enviar una notificación a través de Redis
             $this->notificationService->sendNotification(
