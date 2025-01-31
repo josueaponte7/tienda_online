@@ -63,8 +63,10 @@ class AuthController extends AbstractController
             'timestamp' => date('c'),
         ];
 
+
         //TODO: IMPORTANTE Enviar data a ELASTICSEARCH DESCOMENTAR DESPUES
-        $this->elasticsearchService->index('logs', $data);
+        // **Registrar el evento en Elasticsearch**
+        $this->elasticsearchService->index('login-users', $data);
 
         // Generar el token JWT
         $token = $jwtManager->create($user);

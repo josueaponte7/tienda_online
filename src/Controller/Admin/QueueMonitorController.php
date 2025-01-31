@@ -21,6 +21,7 @@ class QueueMonitorController extends AbstractController
     {
         $queues = [
             'email_queue',
+            'user-notifications'
             // Añade otras colas si tienes más
         ];
 

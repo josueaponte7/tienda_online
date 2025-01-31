@@ -6,7 +6,7 @@ namespace App\Service;
 
 use Redis;
 
-class NotificationService
+class RedisNotificationService
 {
     private Redis $redis;
 

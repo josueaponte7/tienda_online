@@ -11,6 +11,8 @@ monolog:
             type: stream
             path: '%kernel.logs_dir%/debug.log'
             level: debug
+            formatter: monolog.formatter.json  # Solo el nombre del formatter
+            bubble: true
 
         # Logs de ERROR
         error:

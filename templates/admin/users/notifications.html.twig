@@ -16,7 +16,24 @@
     socket.on('notification', function (message) {
         const list = document.getElementById('notifications');
         const item = document.createElement('li');
-        item.textContent = message;
+
+        // Verificar si el mensaje es un objeto o una cadena
+        if (typeof message === 'string') {
+            try {
+                message = JSON.parse(message);  // Intentar parsear si es un string JSON
+            } catch (e) {
+                console.error('No se pudo parsear el mensaje:', e);
+            }
+        }
+
+        // Construir el texto a mostrar
+        if (message && message.type && message.message) {
+            item.textContent = `[${message.type.toUpperCase()}] ${message.message}`;
+        } else {
+            item.textContent = JSON.stringify(message);
+        }
+
+        // Añadir el mensaje a la lista
         list.appendChild(item);
     });
 </script>

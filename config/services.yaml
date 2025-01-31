@@ -33,3 +33,8 @@ services:
             $port: '%rabbitmq.port%'
             $user: '%rabbitmq.user%'
             $password: '%rabbitmq.password%'
+
+    Elastic\Elasticsearch\Client:
+        factory: ['Elastic\Elasticsearch\ClientBuilder', 'fromConfig']
+        arguments:
+            - hosts: ['http://localhost:9200']

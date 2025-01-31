@@ -23,12 +23,12 @@ class ElasticsearchController extends AbstractController
     {
         // Datos de prueba
         $data = [
-            'user' => 'Juan Gabriel Redondo Cuadrado',
+            'user' => 'josue7@gmail.com',
             'action' => 'login',
             'timestamp' => date('c'),
         ];
 
-        $this->elasticsearchService->index('logs', $data);
+        $this->elasticsearchService->index('login-users', $data);
 
         return new JsonResponse(['message' => 'Data indexed successfully']);
     }
@@ -39,12 +39,12 @@ class ElasticsearchController extends AbstractController
         $query = [
             'query' => [
                 'match' => [
-                    'user' => 'Juan Gabriel',
+                    'user' => 'josue7',
                 ],
             ],
         ];
 
-        $results = $this->elasticsearchService->search('logs', $query);
+        $results = $this->elasticsearchService->search('login-users', $query);
 
         return new JsonResponse($results);
     }

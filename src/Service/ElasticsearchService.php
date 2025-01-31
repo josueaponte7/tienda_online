@@ -11,12 +11,9 @@ class ElasticsearchService
 {
     private Client $client;
 
-    public function __construct()
+    public function __construct(Client $client)
     {
-        // Crea el cliente usando la versión actual del paquete
-        $this->client = ClientBuilder::create()
-            ->setHosts(['http://localhost:9200'])
-            ->build();
+        $this->client = $client;
     }
 
     public function index(string $index, array $data): void

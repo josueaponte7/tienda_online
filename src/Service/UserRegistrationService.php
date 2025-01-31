@@ -10,6 +10,8 @@ use App\Entity\User;
 use App\Message\SendEmailMessage;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Exception;
+use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Message\AMQPMessage;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class UserRegistrationService
@@ -17,9 +19,11 @@ class UserRegistrationService
     public function __construct(
         private UserService $userService,
         private DocumentManager $documentManager,
-        private NotificationService $notificationService,
+        private RedisNotificationService $notificationService,
+        private RabbitMQService $rabbitMQService,
         private MessageBusInterface $bus,
-        private LoggerService $loggerService
+        private LoggerService $loggerService,
+        private ElasticsearchService $elasticsearchService
     ) {
     }
 
@@ -50,6 +54,21 @@ class UserRegistrationService
                 'user-notifications',
                 '¡Nuevo usuario registrado: ' . $user->getEmail() . '!',
             );
+
+            $this->rabbitMQService->publishMessage('user-notifications', [
+                'type' => 'rabbitmq',
+                'message' => '¡Nuevo usuario registrado: ' . $user->getEmail() . '!'
+            ]);
+
+            $data = [
+                'messasge' => 'Crear nuevo usuario:'.$user->getEmail(),
+                'action' => 'create-user',
+                'timestamp' => date('c'),
+            ];
+
+            //TODO: IMPORTANTE Enviar data a ELASTICSEARCH DESCOMENTAR DESPUES
+            // **Registrar el evento en Elasticsearch**
+            $this->elasticsearchService->index('auditoria-admin', $data);
 
             return $user;
         } catch (Exception $e) {
