@@ -31,13 +31,13 @@ class UserService
      */
     public function registerUser(RegisterUserDTO $dto): User
     {
-        $this->logger->info("Intentando registrar usuario: {$dto->getEmail()}");
+        $this->loggerService->logInfo("Intentando registrar usuario: {$dto->getEmail()}");
         $email = new Email($dto->email);
 
         // Verificar existencia en MySQL y PostgreSQL
         if ($this->userRepositoryMysql->existsByEmail($email->getValue()) ||
             $this->userRepositoryPostgres->existsByEmail($email->getValue())) {
-            $this->logger->error("El usuario ya existe: {$dto->getEmail()}");
+            $this->loggerService->logError("El usuario ya existe: {$dto->getEmail()}");
             throw new Exception('User already exists.');
         }
 
@@ -55,25 +55,25 @@ class UserService
             $this->entityManager->commit();
         } catch (Exception $e) {
             $this->entityManager->rollback();
-            $this->logger->error("Error al registrar usuario: {$e->getMessage()}");
+            $this->loggerService->logError("Error al registrar usuario: {$e->getMessage()}");
             throw $e;
         }
 
-        return $this->userRepositoryPostgres->findByEmail($dto->email);
+        return $this->userRepositoryMysql->findByEmail($dto->email);
     }
 
     /**
      * Actualiza los datos de un usuario en ambas bases de datos.
      */
-    public function updateUser(string $id, RegisterUserDTO $dto): void
+    public function updateUser(string $id, RegisterUserDTO $dto): User
     {
-        $this->logger->info("Actualizando usuario con ID: $id");
+        $this->loggerService->logInfo("Actualizando usuario con ID: $id");
 
         $userMysql = $this->userRepositoryMysql->findById($id);
         $userPostgres = $this->userRepositoryPostgres->findById($id);
 
         if (!$userMysql && !$userPostgres) {
-            $this->logger->error("Usuario con ID $id no encontrado.");
+            $this->loggerService->logError("Usuario con ID $id no encontrado.");
             throw new Exception('Usuario no encontrado.');
         }
 
@@ -106,9 +106,10 @@ class UserService
             $this->entityManager->commit();
         } catch (Exception $e) {
             $this->entityManager->rollback();
-            $this->logger->error("Error al actualizar usuario: {$e->getMessage()}");
+            $this->loggerService->logError("Error al actualizar usuario: {$e->getMessage()}");
             throw $e;
         }
+        return $this->userRepositoryMysql->findById($id);
     }
 
     /**

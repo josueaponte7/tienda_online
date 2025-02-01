@@ -5,9 +5,9 @@ namespace App\Controller\Admin;
 use App\DTO\RegisterUserDTO;
 use App\Request\Admin\UserRegisterRequest;
 use App\Service\ElasticsearchService;
-use App\Service\LoggerService;
 use App\Service\UserRegistrationService;
 use App\Service\UserService;
+use App\Service\UserUpdateService;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,27 +16,23 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class UserAdminController extends AbstractController
 {
-    public function __construct(
-        private UserRegistrationService $userRegistrationService,
-        private UserService $userService,
-        private LoggerService $loggerService,
-        private ElasticsearchService $elasticsearchService
-    ) {
+    public function __construct()
+    {
     }
 
     #[Route('/admin/users', name: 'admin_users')]
-    public function index(): Response
+    public function index(UserService $userService, ElasticsearchService $elasticsearchService): Response
     {
-        $users = $this->userService->getAllUsers();
+        $users = $userService->getAllUsers();
         $data = [
-            'messasge' => 'Acceso al administrador de usuarios',
+            'message' => 'Acceso al administrador de usuarios',
             'action' => 'acceso',
             'timestamp' => date('c'),
         ];
 
         //TODO: IMPORTANTE Enviar data a ELASTICSEARCH DESCOMENTAR DESPUES
         // **Registrar el evento en Elasticsearch**
-        $this->elasticsearchService->index('auditoria-admin', $data);
+        $elasticsearchService->index('auditoria-admin', $data);
 
         return $this->render('admin/users/index.html.twig', [
             'users' => $users,
@@ -44,7 +40,7 @@ class UserAdminController extends AbstractController
     }
 
     #[Route('/admin/users/create', name: 'admin_user_create', methods: ['GET', 'POST'])]
-    public function create(Request $request): Response
+    public function create(Request $request, UserRegistrationService $userRegistrationService): Response
     {
         if ($request->isMethod('POST')) {
             $registerRequest = UserRegisterRequest::fromRequest($request);
@@ -57,7 +53,7 @@ class UserAdminController extends AbstractController
                 );
 
                 // Usar el servicio para manejar el registro
-                $this->userRegistrationService->registerUser($dto);
+                $userRegistrationService->registerUser($dto);
 
                 $this->addFlash('success', 'Usuario creado exitosamente.');
                 return $this->redirectToRoute('admin_users');
@@ -70,10 +66,14 @@ class UserAdminController extends AbstractController
     }
 
     #[Route('/users/edit/{id}', name: 'user_edit')]
-    public function edit(string $id, Request $request): Response
+    public function edit(
+        string $id,
+        Request $request,
+        UserService $userService,
+        UserUpdateService $userUpdateService,
+    ): Response
     {
-        $user = $this->userService->getUserById($id);
-
+        $user = $userService->getUserById($id);
         if ($request->isMethod('POST')) {
             $editRequest = UserRegisterRequest::fromRequest($request);
 
@@ -82,8 +82,7 @@ class UserAdminController extends AbstractController
                 $editRequest->getPassword(),
                 $editRequest->getRoles(),
             );
-
-            $this->userService->updateUser($id, $dto);
+            $userUpdateService->updateUser($id, $dto);
             $this->addFlash('success', 'Usuario actualizado correctamente.');
             return $this->redirectToRoute('admin_users');
         }

@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\DTO\RegisterUserDTO;
 use App\Entity\User;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Exception;
 
-readonly class UserUpdateService
+readonly class UserDeleteService
 {
     public function __construct(
         private UserService $userService,
@@ -21,19 +20,14 @@ readonly class UserUpdateService
     ) {
     }
 
-    public function updateUser(string $id, RegisterUserDTO $dto): User
+    public function delete(string $id): User
     {
         try {
-            $user_email_old = ($this->userService->getUserById($id))->getEmail();
-            $user = $this->userService->updateUser($id, $dto);
+            $user = $this->userService->getUserById($id);
+            $this->userService->deleteUser($id);
 
             $user_data['user_id'] = $user->getId();
-            if ($user_email_old !== $user->getEmail()) {
-                $user_data['email_old'] = $user_email_old;
-                $user_data['email_new'] = $user->getEmail();
-            } else {
-                $user_data['email'] = $user->getEmail();
-            }
+            $user_data['emai'] = $user->getEmail();
 
             $data = [
                 'message' => 'Editar nuevo usuario:' . json_encode($user_data),

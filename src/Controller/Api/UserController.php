@@ -6,10 +6,12 @@ namespace App\Controller\Api;
 
 use App\DTO\RegisterUserDTO;
 use App\Request\Api\UserRegisterRequest;
+use App\Service\ElasticsearchService;
 use App\Service\JsonResponseService;
 use App\Service\LoggerService;
 use App\Service\UserRegistrationService;
 use App\Service\UserService;
+use App\Service\UserUpdateService;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,13 +21,13 @@ use Symfony\Component\Routing\Annotation\Route;
 class UserController extends AbstractController
 {
     public function __construct(
-        private UserRegistrationService $userRegistrationService,
         private LoggerService $loggerService,
         private UserService $userService,
+        private ElasticsearchService $elasticsearchService,
     ) {}
 
     #[Route('/api/user/register', name: 'api_register', methods: ['POST'])]
-    public function register(Request $request): JsonResponse
+    public function register(Request $request, UserRegistrationService $userRegistrationService): JsonResponse
     {
         try {
             $registerRequest = UserRegisterRequest::fromRequest($request);
@@ -37,7 +39,7 @@ class UserController extends AbstractController
             );
 
             // Usar el servicio para manejar el registro
-            $this->userRegistrationService->registerUser($dto);
+            $userRegistrationService->registerUser($dto);
 
             return JsonResponseService::success(['message' => 'Usuario registrado con éxito'], 201);
         } catch (Exception $e) {
@@ -49,7 +51,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/api/user/edit/{id}', name: 'api_user_edit', methods: ['POST'])]
-    public function edit(string $id, Request $request): JsonResponse
+    public function edit(string $id, Request $request, UserUpdateService $userUpdateService): JsonResponse
     {
         try {
             $editRequest = UserRegisterRequest::fromRequest($request);
@@ -60,7 +62,7 @@ class UserController extends AbstractController
                 $editRequest->getRoles()
             );
 
-            $this->userService->updateUser($id, $dto);
+            $userUpdateService->updateUser($id, $dto);
 
             return JsonResponseService::success(['message' => 'Usuario editado con éxito']);
         } catch (Exception $e) {

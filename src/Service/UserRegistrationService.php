@@ -10,8 +10,6 @@ use App\Entity\User;
 use App\Message\SendEmailMessage;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Exception;
-use PhpAmqpLib\Connection\AMQPStreamConnection;
-use PhpAmqpLib\Message\AMQPMessage;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class UserRegistrationService
@@ -45,7 +43,8 @@ class UserRegistrationService
             $this->documentManager->flush();
 
             $this->loggerService->logInfo('Usuario registrado exitosamente.', [
-                'email' => $dto->getEmail(),
+                'id' => $user->getId(),
+                'email' => $user->getEmail(),
                 'timestamp' => date('c'),
             ]);
 
@@ -60,14 +59,13 @@ class UserRegistrationService
                 'message' => '¡Nuevo usuario registrado: ' . $user->getEmail() . '!'
             ]);
 
+            $user_data['user_id'] = $user->getId();
+            $user_data['email'] = $user->getEmail();
             $data = [
-                'messasge' => 'Crear nuevo usuario:'.$user->getEmail(),
+                'message' => 'Crear nuevo usuario:' . json_encode($user_data),
                 'action' => 'create-user',
                 'timestamp' => date('c'),
             ];
-
-            //TODO: IMPORTANTE Enviar data a ELASTICSEARCH DESCOMENTAR DESPUES
-            // **Registrar el evento en Elasticsearch**
             $this->elasticsearchService->index('auditoria-admin', $data);
 
             return $user;
