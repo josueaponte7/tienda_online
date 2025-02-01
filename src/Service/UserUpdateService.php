@@ -6,6 +6,7 @@ namespace App\Service;
 
 use App\DTO\RegisterUserDTO;
 use App\Entity\User;
+use DateTime;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Exception;
 
@@ -34,10 +35,13 @@ readonly class UserUpdateService
             } else {
                 $user_data['email'] = $user->getEmail();
             }
-
+            $date = new DateTime('now');
             $data = [
-                'message' => 'Editar nuevo usuario:' . json_encode($user_data),
-                'action' => 'user',
+                'message' => 'Editar usuario:' . json_encode($user_data),
+                'module' => 'User',
+                'action' => 'UPDATE',
+                'event_date' => $date->format('d-m-Y H:i'),
+                'user' => 'Admin',
                 'timestamp' => date('c'),
             ];
             $this->elasticsearchService->index('auditoria-admin', $data);

@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Ulid;
 
 #[ORM\Entity]
@@ -17,12 +18,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
 {
     #[ORM\Id]
     #[ORM\Column(type: "string", length: 26, unique: true)]
+    #[Groups(['user_read'])]
     private string $id;
     #[ORM\Column(type: "string", length: 180, unique: true)]
+    #[Groups(['user_read'])]
     private string $email;
     #[ORM\Column(type: "string")]
     private string $password;
     #[ORM\Column(type: "json")]
+    #[Groups(['user_read'])]
     private array $roles;
 
     private function __construct(string $email, string $password, Roles $roles)

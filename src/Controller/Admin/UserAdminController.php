@@ -5,9 +5,11 @@ namespace App\Controller\Admin;
 use App\DTO\RegisterUserDTO;
 use App\Request\Admin\UserRegisterRequest;
 use App\Service\ElasticsearchService;
+use App\Service\UserDeleteService;
 use App\Service\UserRegistrationService;
 use App\Service\UserService;
 use App\Service\UserUpdateService;
+use DateTime;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,10 +25,14 @@ class UserAdminController extends AbstractController
     #[Route('/admin/users', name: 'admin_users')]
     public function index(UserService $userService, ElasticsearchService $elasticsearchService): Response
     {
+        $date = new DateTime('now');
         $users = $userService->getAllUsers();
         $data = [
             'message' => 'Acceso al administrador de usuarios',
-            'action' => 'acceso',
+            'module' => 'User',
+            'action' => 'LIST',
+            'event_date' => $date->format('d-m-Y H:i'),
+            'user' => 'Admin',
             'timestamp' => date('c'),
         ];
 
@@ -93,9 +99,9 @@ class UserAdminController extends AbstractController
     }
 
     #[Route('/users/delete/{id}', name: 'user_delete', methods: ['POST'])]
-    public function delete(string $id): Response
+    public function delete(string $id, UserDeleteService $userDeleteService): Response
     {
-        $this->userService->deleteUser($id);
+        $userDeleteService->deleteUser($id);
         $this->addFlash('success', 'Usuario eliminado correctamente.');
 
         return $this->redirectToRoute('admin_users');

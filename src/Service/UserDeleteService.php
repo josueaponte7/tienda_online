@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Entity\User;
+use DateTime;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Exception;
 
@@ -20,39 +20,45 @@ readonly class UserDeleteService
     ) {
     }
 
-    public function delete(string $id): User
+    public function deleteUser(string $id): void
     {
         try {
             $user = $this->userService->getUserById($id);
             $this->userService->deleteUser($id);
 
             $user_data['user_id'] = $user->getId();
-            $user_data['emai'] = $user->getEmail();
+            $user_data['email'] = $user->getEmail();
+
+            $date = new DateTime('now');
 
             $data = [
-                'message' => 'Editar nuevo usuario:' . json_encode($user_data),
-                'action' => 'user',
+                'message' => 'Eliminar usuario:' . json_encode($user_data),
+                'module' => 'User',
+                'action' => 'DELETE',
+                'event_date' => $date->format('d-m-Y H:i'),
+                'user' => 'Admin',
                 'timestamp' => date('c'),
             ];
+
             $this->elasticsearchService->index('auditoria-admin', $data);
             // Enviar una notificación a través de Redis
             $this->notificationService->sendNotification(
                 'user-notifications',
-                '¡Modificar usuario registrado: ' . $user->getEmail() . '!',
+                '¡Eliminar usuario registrado: ' . $user->getId() . '!',
             );
 
             $this->rabbitMQService->publishMessage('user-notifications', [
                 'type' => 'rabbitmq',
-                'message' => '¡Modificar usuario registrado: ' . $user->getEmail() . '!',
+                'message' => '¡Modificar usuario registrado: ' . $user->getId() . '!',
             ]);
 
-            $this->loggerService->logInfo('Usuario actualizado  exitosamente.', [
+            $this->loggerService->logInfo('Usuario eliminado  exitosamente.', [
                 'id' => $user->getEmail(),
                 'email' => $user->getEmail(),
                 'timestamp' => date('c'),
             ]);
 
-            return $this->userService->getUserById($id);
+            return;
         } catch (Exception $e) {
             throw new Exception('Error en el registro del usuario: ' . $e->getMessage());
         }

@@ -8,6 +8,8 @@ use App\Document\UserRegister;
 use App\DTO\RegisterUserDTO;
 use App\Entity\User;
 use App\Message\SendEmailMessage;
+use App\Serializer\EntitySerializer;
+use DateTime;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Exception;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -21,7 +23,8 @@ class UserRegistrationService
         private RabbitMQService $rabbitMQService,
         private MessageBusInterface $bus,
         private LoggerService $loggerService,
-        private ElasticsearchService $elasticsearchService
+        private ElasticsearchService $elasticsearchService,
+        private EntitySerializer $entitySerializer,
     ) {
     }
 
@@ -58,12 +61,15 @@ class UserRegistrationService
                 'type' => 'rabbitmq',
                 'message' => '¡Nuevo usuario registrado: ' . $user->getEmail() . '!'
             ]);
-
+            $date = new DateTime('now');
             $user_data['user_id'] = $user->getId();
             $user_data['email'] = $user->getEmail();
             $data = [
                 'message' => 'Crear nuevo usuario:' . json_encode($user_data),
-                'action' => 'create-user',
+                'module' => 'User',
+                'action' => 'REGISTER',
+                'event_date' => $date->format('d-m-Y H:i'),
+                'user' => 'Admin',
                 'timestamp' => date('c'),
             ];
             $this->elasticsearchService->index('auditoria-admin', $data);

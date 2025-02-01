@@ -9,6 +9,7 @@ use App\Request\Api\UserRegisterRequest;
 use App\Service\ElasticsearchService;
 use App\Service\JsonResponseService;
 use App\Service\LoggerService;
+use App\Service\UserDeleteService;
 use App\Service\UserRegistrationService;
 use App\Service\UserService;
 use App\Service\UserUpdateService;
@@ -71,9 +72,9 @@ class UserController extends AbstractController
     }
 
     #[Route('/api/user/delete/{id}', name: 'api_user_delete', methods: ['POST'])]
-    public function delete(string $id): JsonResponse
+    public function delete(string $id, UserDeleteService $userDeleteService): JsonResponse
     {
-        $this->userService->deleteUser($id);
+        $userDeleteService->deleteUser($id);
         return JsonResponseService::success(['message' => 'Usuario eliminado con éxito']);
     }
 }
