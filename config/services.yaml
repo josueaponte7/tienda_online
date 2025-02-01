@@ -10,7 +10,9 @@ services:
     _defaults:
         autowire: true
         autoconfigure: true
+        public: false
 
+    # Configuración automática de servicios en `src/`
     App\:
         resource: '../src/'
         exclude:
@@ -18,8 +20,27 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    # Registro de los repositorios sin argumentos manuales
+    App\Repository\UserRepositoryMysql:
+        public: true
+        arguments:
+            $entityManager: '@doctrine.orm.mysql_entity_manager_entity_manager'
+            $logger: '@logger'# Puede ser necesario si deseas depurar o verificar manualmente
+    App\Repository\UserRepositoryPostgres:
+        public: true
+        arguments:
+            $entityManager: '@doctrine.orm.postgres_entity_manager_entity_manager'
+            $logger: '@logger'
+
+    # Configuración del servicio UserService
+    App\Service\UserService:
+        arguments:
+            $userRepositoryMysql: '@App\Repository\UserRepositoryMysql'
+            $userRepositoryPostgres: '@App\Repository\UserRepositoryPostgres'
+
+    # Alias para la interfaz del repositorio
     App\Repository\UserRepositoryInterface:
-        alias: App\Repository\UserRepository
+        alias: App\Repository\UserRepositoryPostgres
 
     Redis:
         class: Redis

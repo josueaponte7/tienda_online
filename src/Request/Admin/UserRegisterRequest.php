@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Request\Admin;
 
-use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
 
 final class UserRegisterRequest

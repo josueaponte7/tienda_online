@@ -9,6 +9,7 @@ use App\Request\Api\UserRegisterRequest;
 use App\Service\JsonResponseService;
 use App\Service\LoggerService;
 use App\Service\UserRegistrationService;
+use App\Service\UserService;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,7 +20,8 @@ class UserController extends AbstractController
 {
     public function __construct(
         private UserRegistrationService $userRegistrationService,
-        private LoggerService $loggerService
+        private LoggerService $loggerService,
+        private UserService $userService,
     ) {}
 
     #[Route('/api/user/register', name: 'api_register', methods: ['POST'])]
@@ -69,18 +71,7 @@ class UserController extends AbstractController
     #[Route('/api/user/delete/{id}', name: 'api_user_delete', methods: ['POST'])]
     public function delete(string $id): JsonResponse
     {
-        try {
-            $user = $this->userService->getUserById($id);
-
-            if (!$user) {
-                return JsonResponseService::error('Usuario no encontrado.', 404);
-            }
-
-            $this->userService->deleteUser($user);
-
-            return JsonResponseService::success(['message' => 'Usuario eliminado con éxito']);
-        } catch (Exception $e) {
-            return JsonResponseService::error($e->getMessage());
-        }
+        $this->userService->deleteUser($id);
+        return JsonResponseService::success(['message' => 'Usuario eliminado con éxito']);
     }
 }

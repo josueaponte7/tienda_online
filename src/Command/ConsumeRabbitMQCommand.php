@@ -27,14 +27,12 @@ class ConsumeRabbitMQCommand extends Command
     {
         $this->setDescription('Consume mensajes de RabbitMQ y los indexa en Elasticsearch.');
     }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        /*$this->loggerService->logInfo('Usuario registrado exitosamente.', [
-            'email' => $dto->getEmail(),
-            'timestamp' => date('c'),
-        ]);*/
+        dump('Entra');
 
-        $this->rabbitMQService->consumeMessages('user-notifications', function () {
+        $this->rabbitMQService->consumeSingleMessage('user-notifications', function ($message) {
             $data = [
                 'messasge' => 'Test',
                 'action' => 'test-user',
@@ -42,7 +40,7 @@ class ConsumeRabbitMQCommand extends Command
             ];
             $this->elasticsearchService->index('auditoria-admin', $data);
         });
-
+        dump('Sale');
         return Command::SUCCESS;
     }
 }

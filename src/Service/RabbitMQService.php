@@ -66,31 +66,66 @@ class RabbitMQService
         try {
             $channel = $this->connection->channel();
 
-            // Asegurar que la cola existe
+            // Declarar la cola si no existe
             $channel->queue_declare($queueName, false, true, false, false);
 
             // Consumir mensajes de la cola
-            $channel->basic_consume($queueName, '', false, true, false, false, function ($msg) use ($callback) {
+            $channel->basic_consume($queueName, '', false, true, false, false, function (AMQPMessage $msg) use ($callback, $queueName) {
                 $data = json_decode($msg->body, true);
+
                 if (json_last_error() === JSON_ERROR_NONE) {
-                    $this->logger->info("Mensaje recibido de '$queueName'", $data);
+                    $this->logger->info("Mensaje recibido de la cola '$queueName'", $data);
                     $callback($data);
                 } else {
-                    $this->logger->warning("Mensaje malformado recibido de '$queueName': " . $msg->body);
+                    $this->logger->warning("Mensaje malformado recibido de la cola '$queueName': " . $msg->body);
                 }
             });
 
-            // Esperar los mensajes
+            // Esperar los mensajes en un bucle
             while ($channel->is_consuming()) {
-                $channel->wait();
+                $channel->wait();  // Bloquea esperando mensajes
             }
 
+            // Cerrar el canal después de terminar el consumo
             $channel->close();
         } catch (AMQPExceptionInterface $e) {
             $this->logger->error("Error al consumir mensajes de RabbitMQ: " . $e->getMessage());
             throw new \RuntimeException('Error al consumir mensajes de RabbitMQ.');
+        } finally {
+            // Asegurar que la conexión se cierra
+            if ($this->connection->isConnected()) {
+                $this->connection->close();
+            }
         }
     }
+
+    public function consumeSingleMessage(string $queueName, callable $callback): void
+    {
+        try {
+            $channel = $this->connection->channel();
+
+            // Declarar la cola
+            $channel->queue_declare($queueName, false, true, false, false);
+
+            // Configura el consumidor para manejar un único mensaje
+            $channel->basic_consume($queueName, '', false, true, false, false, function ($msg) use ($callback) {
+                $data = json_decode($msg->body, true);
+
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $callback($data);
+                }
+            });
+
+            // Esperar un único mensaje con timeout de 5 segundos
+            $channel->wait(null, false, 5);
+
+            // Cerrar el canal
+            $channel->close();
+        } catch (\Exception $e) {
+            $this->logger->error("Error al consumir mensaje: " . $e->getMessage());
+        }
+    }
+
 
     /**
      * Cerrar la conexión a RabbitMQ
