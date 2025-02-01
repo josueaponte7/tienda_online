@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Service\ElasticsearchService;
+use App\Service\RabbitMQService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use App\Service\RabbitMQService;
-use App\Service\ElasticsearchService;
 
 #[AsCommand(name: 'app:consume-rabbitmq', description: 'Algo')]
 class ConsumeRabbitMQCommand extends Command
@@ -34,7 +34,7 @@ class ConsumeRabbitMQCommand extends Command
 
         $this->rabbitMQService->consumeSingleMessage('user-notifications', function ($message) {
             $data = [
-                'messasge' => 'Test',
+                'message' => 'Test',
                 'action' => 'test-user',
                 'timestamp' => date('c'),
             ];
