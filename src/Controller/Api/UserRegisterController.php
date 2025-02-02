@@ -9,7 +9,7 @@ use App\Request\Api\UserRegisterRequest;
 use App\Service\ElasticsearchService;
 use App\Service\JsonResponseService;
 use App\Service\LoggerService;
-use App\Service\UserService;
+use App\Service\UserRegistrationService;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,7 +20,7 @@ class UserRegisterController extends AbstractController
 {
     public function __construct(
         private LoggerService $loggerService,
-        private UserService $userRegistrationService,
+        private UserRegistrationService $userRegistrationService,
         private ElasticsearchService $elasticsearchService,
     ) {
     }
