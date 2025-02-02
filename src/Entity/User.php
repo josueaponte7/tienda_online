@@ -6,7 +6,10 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Controller\Api\UserRegisterController;
+use App\DTO\UserRegistrationInput;
 use App\VO\Email;
 use App\VO\Password;
 use App\VO\Roles;
@@ -32,7 +35,47 @@ use Symfony\Component\Uid\Ulid;
             denormalizationContext: ['groups' => ['user_write']],
         ),
         new Delete(),
-        
+        new Post(
+            uriTemplate    : '/user/register',
+            formats        : ['json' => ['application/json']],
+            status         : 201,
+            controller     : UserRegisterController::class,
+            description    : 'Registers a new user',
+            input          : UserRegistrationInput::class,
+            extraProperties: [
+                'summary' => 'Register a new user',
+                'requestBody' => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'email' => ['type' => 'string'],
+                                    'password' => ['type' => 'string'],
+                                ],
+                                'required' => ['email', 'password'],
+                            ],
+                        ],
+                    ],
+                ],
+                'responses' => [
+                    '201' => [
+                        'description' => 'User successfully registered',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'message' => ['type' => 'string'],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ),
+
     ],
     normalizationContext  : ['groups' => ['user_read']],
     denormalizationContext: ['groups' => ['user_write']]
