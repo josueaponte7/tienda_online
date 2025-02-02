@@ -11,3 +11,6 @@ api_platform:
         paths: ['%kernel.project_dir%/src/Entity', '%kernel.project_dir%/src/Document']
     enable_swagger_ui: true
     enable_docs: true
+    formats:
+        jsonld: ['application/ld+json']
+        json: ['application/json']

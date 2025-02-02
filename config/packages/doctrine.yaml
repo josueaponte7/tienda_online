@@ -5,11 +5,14 @@ doctrine:
             mysql_connection:
                 url: '%env(resolve:DATABASE_URL)%'
                 server_version: '8.0'
+                driver: 'pdo_mysql'
 
             postgres_connection:
                 url: '%env(resolve:DATABASE_URL_PGSQL)%'
                 server_version: '16'
                 logging: true
+                driver: 'pdo_pgsql'
+                charset: utf8
 
     orm:
         default_entity_manager: mysql_entity_manager

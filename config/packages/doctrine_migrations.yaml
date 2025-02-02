@@ -3,3 +3,6 @@ doctrine_migrations:
         'Migrations\Mysql': '%kernel.project_dir%/migrations/mysql'
         'Migrations\Postgres': '%kernel.project_dir%/migrations/postgres'
     enable_profiler: false
+    storage:
+        table_storage:
+            table_name: doctrine_migration_versions

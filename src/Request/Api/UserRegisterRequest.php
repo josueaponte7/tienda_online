@@ -27,7 +27,6 @@ final class UserRegisterRequest
         if (!is_array($data)) {
             throw new InvalidArgumentException('Invalid JSON format.');
         }
-
         $email = $data['email'] ?? throw new InvalidArgumentException('Email is required.');
         $password = $data['password'] ?? throw new InvalidArgumentException('Password is required.');
 

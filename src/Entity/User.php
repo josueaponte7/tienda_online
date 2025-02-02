@@ -6,11 +6,13 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\VO\Email;
 use App\VO\Password;
 use App\VO\Roles;
+use DateTimeImmutable;
+use DateTimeInterface;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -20,6 +22,7 @@ use Symfony\Component\Uid\Ulid;
 
 #[ORM\Entity]
 #[ORM\Table(name: "users")]
+#[ORM\HasLifecycleCallbacks]
 #[ApiResource(
     operations            : [
         new Get(normalizationContext: ['groups' => ['user_read']]),
@@ -29,44 +32,7 @@ use Symfony\Component\Uid\Ulid;
             denormalizationContext: ['groups' => ['user_write']],
         ),
         new Delete(),
-        new Post(
-            uriTemplate    : '/register',
-            description    : 'Registers a new user',
-            input          : false,
-            output         : false,
-            name           : 'user_register',
-            extraProperties: [
-                'swagger_context' => [
-                    'summary' => 'Registers a new user',
-                    'tags' => ['User'],
-                    'requestBody' => [
-                        'content' => [
-                            'application/json' => [
-                                'schema' => [
-                                    'type' => 'object',
-                                    'properties' => [
-                                        'email' => ['type' => 'string'],
-                                        'password' => ['type' => 'string'],
-                                    ],
-                                    'required' => ['email', 'password'],
-                                ],
-                            ],
-                        ],
-                    ],
-                    'responses' => [
-                        '201' => [
-                            'description' => 'User successfully registered',
-                            'content' => [
-                                'application/json' => [
-                                    'schema' => ['type' => 'object'],
-                                ],
-                            ],
-                        ],
-                        '400' => ['description' => 'Invalid input'],
-                    ],
-                ],
-            ],
-        ),
+        
     ],
     normalizationContext  : ['groups' => ['user_read']],
     denormalizationContext: ['groups' => ['user_write']]
@@ -85,6 +51,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
     #[ORM\Column(type: "json")]
     #[Groups(['user_read', 'user_write'])]
     private array $roles;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private ?DateTimeImmutable $createdAt = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private ?DateTimeImmutable $updatedAt = null;
 
     private function __construct(string $email, string $password, Roles $roles)
     {
@@ -159,5 +129,41 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
     public function getUserIdentifier(): string
     {
         return $this->email;
+    }
+
+    public function getCreatedAt(): ?DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(DateTimeImmutable $createdAt): self
+    {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(DateTimeImmutable $updatedAt): self
+    {
+        $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function onPrePersist(): void
+    {
+        $now = new DateTimeImmutable();
+        $this->createdAt = $now;
+        $this->updatedAt = $now;
+    }
+
+    #[ORM\PreUpdate]
+    public function onPreUpdate(): void
+    {
+        $this->updatedAt = new DateTimeImmutable();
     }
 }

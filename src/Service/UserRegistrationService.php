@@ -69,7 +69,7 @@ class UserRegistrationService
                 'module' => 'User',
                 'action' => 'REGISTER',
                 'event_date' => $date->format('d-m-Y H:i'),
-                'user' => 'Admin',
+                'user' => 'No user',
                 'timestamp' => date('c'),
             ];
             $this->elasticsearchService->index('auditoria-admin', $data);

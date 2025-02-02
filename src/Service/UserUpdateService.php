@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Document\UserRegister;
 use App\DTO\RegisterUserDTO;
 use App\Entity\User;
 use DateTime;
@@ -27,6 +28,10 @@ readonly class UserUpdateService
         try {
             $user_email_old = ($this->userService->getUserById($id))->getEmail();
             $user = $this->userService->updateUser($id, $dto);
+
+            $userRegister = new UserRegister($user->getId(), $user->getEmail());
+            $this->documentManager->persist($userRegister);
+            $this->documentManager->flush();
 
             $user_data['user_id'] = $user->getId();
             if ($user_email_old !== $user->getEmail()) {
