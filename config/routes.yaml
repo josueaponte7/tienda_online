@@ -3,3 +3,16 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+swagger_ui:
+    path: /docs
+    controller: 'api_platform.swagger_ui.action'
+
+openapi:
+    path: /docs.json
+    controller: ApiPlatform\Symfony\Bundle\ApiPlatformBundle\Controller\OpenApiAction::__invoke
+
+re_doc:
+    path: /re-docs
+    controller: ApiPlatform\Symfony\Bundle\ApiPlatformBundle\Controller\ReDocAction::__invoke
+

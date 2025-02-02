@@ -1,0 +1,13 @@
+api_platform:
+    title: Tienda online API
+    version: 1.0.0
+    defaults:
+        stateless: true
+        cache_headers:
+            vary: ['Content-Type', 'Authorization', 'Origin']
+    doctrine_mongodb_odm:
+        enabled: true
+    mapping:
+        paths: ['%kernel.project_dir%/src/Entity', '%kernel.project_dir%/src/Document']
+    enable_swagger_ui: true
+    enable_docs: true

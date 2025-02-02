@@ -2,6 +2,12 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\VO\Email;
 use App\VO\Password;
 use App\VO\Roles;
@@ -14,6 +20,57 @@ use Symfony\Component\Uid\Ulid;
 
 #[ORM\Entity]
 #[ORM\Table(name: "users")]
+#[ApiResource(
+    operations            : [
+        new Get(normalizationContext: ['groups' => ['user_read']]),
+        new GetCollection(normalizationContext: ['groups' => ['user_read']]),
+        new Put(
+            normalizationContext  : ['groups' => ['user_read']],
+            denormalizationContext: ['groups' => ['user_write']],
+        ),
+        new Delete(),
+        new Post(
+            uriTemplate    : '/register',
+            description    : 'Registers a new user',
+            input          : false,
+            output         : false,
+            name           : 'user_register',
+            extraProperties: [
+                'swagger_context' => [
+                    'summary' => 'Registers a new user',
+                    'tags' => ['User'],
+                    'requestBody' => [
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'email' => ['type' => 'string'],
+                                        'password' => ['type' => 'string'],
+                                    ],
+                                    'required' => ['email', 'password'],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'responses' => [
+                        '201' => [
+                            'description' => 'User successfully registered',
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => ['type' => 'object'],
+                                ],
+                            ],
+                        ],
+                        '400' => ['description' => 'Invalid input'],
+                    ],
+                ],
+            ],
+        ),
+    ],
+    normalizationContext  : ['groups' => ['user_read']],
+    denormalizationContext: ['groups' => ['user_write']]
+)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSerializable
 {
     #[ORM\Id]
@@ -21,12 +78,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
     #[Groups(['user_read'])]
     private string $id;
     #[ORM\Column(type: "string", length: 180, unique: true)]
-    #[Groups(['user_read'])]
+    #[Groups(['user_read', 'user_write'])]
     private string $email;
     #[ORM\Column(type: "string")]
     private string $password;
     #[ORM\Column(type: "json")]
-    #[Groups(['user_read'])]
+    #[Groups(['user_read', 'user_write'])]
     private array $roles;
 
     private function __construct(string $email, string $password, Roles $roles)

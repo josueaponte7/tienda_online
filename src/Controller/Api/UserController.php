@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Api;
 
+use ApiPlatform\Metadata\Post;
 use App\DTO\RegisterUserDTO;
 use App\Request\Api\UserRegisterRequest;
 use App\Service\ElasticsearchService;
@@ -19,6 +20,46 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
+#[Post(
+    uriTemplate    : '/api/user/register',
+    description    : 'Registers a new user',
+    input          : User::class,
+    output         : false,
+    name           : 'user_register',
+    extraProperties: [
+        'swagger_context' => [
+            'summary' => 'Registers a new user',
+            'tags' => ['User'],
+            'requestBody' => [
+                'content' => [
+                    'application/json' => [
+                        'schema' => [
+                            'type' => 'object',
+                            'properties' => [
+                                'email' => ['type' => 'string'],
+                                'password' => ['type' => 'string'],
+                            ],
+                            'required' => ['email', 'password'],
+                        ],
+                    ],
+                ],
+            ],
+            'responses' => [
+                '201' => [
+                    'description' => 'User successfully registered',
+                    'content' => [
+                        'application/json' => [
+                            'schema' => ['type' => 'object'],
+                        ],
+                    ],
+                ],
+                '400' => [
+                    'description' => 'Invalid input',
+                ],
+            ],
+        ],
+    ]
+)]
 class UserController extends AbstractController
 {
     public function __construct(

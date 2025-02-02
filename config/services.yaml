@@ -19,6 +19,13 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+            - '../src/Document/'
+
+    # Configuración para los documentos de MongoDB
+    App\Document\:
+        resource: '../src/Document/'
+        public: false
+        tags: ['doctrine_mongodb.odm.document']
 
     # Registro de los repositorios sin argumentos manuales
     App\Repository\UserRepositoryMysql:
@@ -59,3 +66,9 @@ services:
         factory: ['Elastic\Elasticsearch\ClientBuilder', 'fromConfig']
         arguments:
             - hosts: ['http://localhost:9200']
+
+    ApiPlatform\Symfony\Bundle\SwaggerUi\SwaggerUiAction:
+        arguments:
+            $openApiFactory: '@api_platform.openapi.factory'
+            $swaggerUiContext: []
+        tags: ['controller.service_arguments']
