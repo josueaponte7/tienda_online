@@ -2,11 +2,13 @@
 framework:
     secret: '%env(APP_SECRET)%'
 
-    # Note that the session will be started ONLY if you read or write from it.
-    session: true
+    session:
+        handler_id: null          # Symfony usa su gestor de sesión por defecto
+        cookie_secure: auto       # Automáticamente asegura las cookies en HTTPS
+        cookie_samesite: lax      # Mejora la compatibilidad de las cookies
+        cookie_httponly: true     # Mejora la seguridad (solo accesible desde HTTP)
+        gc_maxlifetime: 3600      # Tiempo de vida de la sesión en segundos
 
-    #esi: true
-    #fragments: true
 
 when@test:
     framework:

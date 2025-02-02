@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Página pública{% endblock %}
+
+{% block body %}
+  
+    {% if app.user %}
+        <p>Actualmente estás autenticado como {{ app.user.email }}</p>
+        <a href="{{ path('logout') }}">Cerrar sesión</a>
+    {% else %}
+        <p>No estás autenticado.</p>
+        <a href="{{ path('login') }}">Iniciar sesión</a>
+    {% endif %}
+{% endblock %}
