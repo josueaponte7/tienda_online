@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificaciones</title>
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+</head>
+<body>
+<h1>Notificaciones en Tiempo Real</h1>
+<ul id="notifications"></ul>
+
+<script>
+    // Conectar al servidor Socket.IO
+    const socket = io('http://localhost:3000', {
+        transports: ['websocket'],
+        reconnectionAttempts: 5,  // Intentos de reconexión
+        timeout: 5000             // Tiempo de espera
+    });
+
+    // Manejo de eventos de conexión
+    socket.on('connect', () => {
+        console.log('Conectado al servidor Socket.IO con ID:', socket.id);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Desconectado del servidor Socket.IO');
+    });
+
+    // Escuchar mensajes de notificación
+    socket.on('notification', function (message) {
+        const formattedMessage = processMessage(message);
+        if (formattedMessage) {
+            const list = document.getElementById('notifications');
+            const item = document.createElement('li');
+            item.textContent = formattedMessage;
+            list.appendChild(item);
+        }
+    });
+
+    // Manejar errores en la conexión
+    socket.on('connect_error', (err) => {
+        console.error('Error al conectar con Socket.IO:', err);
+    });
+
+    function processMessage(message) {
+        let parsedMessage;
+
+        // Parsear y validar el mensaje según el tipo
+        if (message.type === 'redis') {
+            try {
+                parsedMessage = JSON.parse(message.message);
+            } catch (error) {
+                console.error('Error al parsear mensaje de Redis:', error);
+                return null;
+            }
+        } else if (message.type === 'rabbitmq') {
+            parsedMessage = message.message;
+        } else {
+            console.warn('Tipo de mensaje desconocido:', message.type);
+            return null;
+        }
+
+        // Validar campos esenciales
+        const {message: infoText, details} = parsedMessage;
+        if (!details || !details.email) {
+            console.warn('Detalles incompletos en el mensaje:', parsedMessage);
+            return null;
+        }
+
+        // Retornar cadena formateada
+        return `${message.type.toUpperCase()}: ${infoText} ${details.email}`;
+    }
+
+</script>
+</body>
+</html>

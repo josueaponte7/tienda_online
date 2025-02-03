@@ -51,15 +51,23 @@ class UserRegistrationService
                 'timestamp' => date('c'),
             ]);
 
+            $data = [
+                'message' => '¡Nuevo usuario registrado!',
+                'details' => [
+                    'action' => 'create',
+                    'id' => $user->getId(),
+                    'email' => $user->getEmail(),
+                ],
+            ];
             // Enviar una notificación a través de Redis
             $this->notificationService->sendNotification(
                 'user-notifications',
-                '¡Nuevo usuario registrado: ' . $user->getEmail() . '!',
+                json_encode($data),
             );
 
             $this->rabbitMQService->publishMessage('user-notifications', [
                 'type' => 'rabbitmq',
-                'message' => '¡Nuevo usuario registrado: ' . $user->getEmail() . '!'
+                'message' => $data,
             ]);
             $date = new DateTime('now');
             $user_data['user_id'] = $user->getId();

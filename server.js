@@ -45,8 +45,7 @@ subscriber.on('error', (err) => {
 
         // Suscribirse al canal de notificaciones
         await subscriber.subscribe('user-notifications', (message) => {
-            console.log(`REDIS: Mensaje recibido en el canal user-notifications: ${message}`);
-
+        
             // Emitir mensaje estructurado a través de Socket.IO
             io.emit('notification', {
                 type: 'redis',
