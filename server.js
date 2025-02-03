@@ -7,9 +7,20 @@ const amqp = require('amqplib');
 const httpServer = createServer();
 const io = new Server(httpServer, {
     cors: {
-        origin: "http://tienda-online.local", // Tu dominio local
-        methods: ["GET", "POST"]
+        origin: ["http://localhost", "http://tienda-online.local"],
+        methods: ["GET", "POST"],
+        allowedHeaders: ["my-custom-header"],
+        credentials: true
     }
+});
+
+// Evento de conexión de Socket.IO
+io.on('connection', (socket) => {
+    console.log('Nuevo cliente conectado:', socket.id);
+
+    socket.on('disconnect', () => {
+        console.log('Cliente desconectado:', socket.id);
+    });
 });
 
 // === Configuración de Redis ===

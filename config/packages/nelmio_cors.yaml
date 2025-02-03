@@ -1,12 +1,17 @@
 nelmio_cors:
     defaults:
         allow_credentials: true
-        allow_origin: ['http://tienda-online.local'] # Cambia esto a tu dominio
-        allow_headers: ['Content-Type', 'Authorization']
+        allow_origin: ['http://tienda-online.local', 'http://localhost:3000']  # Incluye localhost:3000
+        allow_headers: ['Content-Type', 'Authorization', 'X-Requested-With']
         allow_methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+        expose_headers: ['Link']  # Para API Platform, si es necesario
         max_age: 3600
     paths:
-        '^/api/': # Aplica CORS solo a las rutas bajo /api
-            allow_origin: ['http://tienda-online.local']
-            allow_headers: ['Content-Type', 'Authorization']
+        '^/api/':
+            allow_origin: ['http://tienda-online.local', 'http://localhost:3000']
+            allow_headers: ['Content-Type', 'Authorization', 'X-Requested-With']
             allow_methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+        '^/socket.io/': # Excepción para Socket.IO
+            allow_origin: ['http://localhost:3000']
+            allow_headers: ['Content-Type', 'Authorization', 'X-Requested-With']
+            allow_methods: ['GET', 'POST', 'OPTIONS']

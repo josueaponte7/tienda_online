@@ -4,16 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notificaciones</title>
-    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
 </head>
 <body>
 <h1>Notificaciones en Tiempo Real</h1>
 <ul id="notifications"></ul>
 
 <script>
-    const socket = io('http://localhost:3000'); // Cambia esto si usas otro puerto
+    // Conectar al servidor Socket.IO
+    const socket = io('http://localhost:3000', {
+        transports: ['websocket'],
+        reconnectionAttempts: 5,  // Intentos de reconexión
+        timeout: 5000             // Tiempo de espera
+    });
 
+    // Manejo de eventos de conexión
+    socket.on('connect', () => {
+        console.log('Conectado al servidor Socket.IO con ID:', socket.id);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Desconectado del servidor Socket.IO');
+    });
+
+    // Escuchar mensajes de notificación
     socket.on('notification', function (message) {
+        console.log('Mensaje recibido:', message);
+
         const list = document.getElementById('notifications');
         const item = document.createElement('li');
 
@@ -35,6 +52,11 @@
 
         // Añadir el mensaje a la lista
         list.appendChild(item);
+    });
+
+    // Manejar errores en la conexión
+    socket.on('connect_error', (err) => {
+        console.error('Error al conectar con Socket.IO:', err);
     });
 </script>
 </body>
