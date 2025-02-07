@@ -26,7 +26,6 @@ final class UserRegisterRequest
 
     public static function fromRequest(Request $request): self
     {
-        dump('gggg');
         $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         if (!is_array($data)) {
