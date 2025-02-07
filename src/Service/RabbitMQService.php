@@ -4,14 +4,18 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use Exception;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
-use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Exception\AMQPExceptionInterface;
+use PhpAmqpLib\Message\AMQPMessage;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
+
 class RabbitMQService
 {
     private AMQPStreamConnection $connection;
     private LoggerInterface $logger;
+
     public function __construct(string $host, int $port, string $user, string $password, LoggerInterface $logger)
     {
         $this->connection = new AMQPStreamConnection($host, $port, $user, $password);
@@ -42,7 +46,7 @@ class RabbitMQService
             $channel->queue_declare($queueName, false, true, false, false);
 
             // Crear el mensaje
-            $msg = new AMQPMessage(json_encode($message), [
+            $msg = new AMQPMessage(json_encode($message, JSON_THROW_ON_ERROR), [
                 'content_type' => 'application/json',
                 'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT,
             ]);
@@ -54,7 +58,7 @@ class RabbitMQService
             $channel->close();
         } catch (AMQPExceptionInterface $e) {
             $this->logger->error("Error al publicar mensaje en RabbitMQ: " . $e->getMessage());
-            throw new \RuntimeException('Error al enviar el mensaje a RabbitMQ.');
+            throw new RuntimeException('Error al enviar el mensaje a RabbitMQ.');
         }
     }
 
@@ -70,16 +74,24 @@ class RabbitMQService
             $channel->queue_declare($queueName, false, true, false, false);
 
             // Consumir mensajes de la cola
-            $channel->basic_consume($queueName, '', false, true, false, false, function (AMQPMessage $msg) use ($callback, $queueName) {
-                $data = json_decode($msg->body, true);
+            $channel->basic_consume(
+                $queueName,
+                '',
+                false,
+                true,
+                false,
+                false,
+                function (AMQPMessage $msg) use ($callback, $queueName) {
+                    $data = json_decode($msg->body, true, 512, JSON_THROW_ON_ERROR);
 
-                if (json_last_error() === JSON_ERROR_NONE) {
-                    $this->logger->info("Mensaje recibido de la cola '$queueName'", $data);
-                    $callback($data);
-                } else {
-                    $this->logger->warning("Mensaje malformado recibido de la cola '$queueName': " . $msg->body);
-                }
-            });
+                    if (json_last_error() === JSON_ERROR_NONE) {
+                        $this->logger->info("Mensaje recibido de la cola '$queueName'", $data);
+                        $callback($data);
+                    } else {
+                        $this->logger->warning("Mensaje malformado recibido de la cola '$queueName': " . $msg->body);
+                    }
+                },
+            );
 
             // Esperar los mensajes en un bucle
             while ($channel->is_consuming()) {
@@ -90,7 +102,7 @@ class RabbitMQService
             $channel->close();
         } catch (AMQPExceptionInterface $e) {
             $this->logger->error("Error al consumir mensajes de RabbitMQ: " . $e->getMessage());
-            throw new \RuntimeException('Error al consumir mensajes de RabbitMQ.');
+            throw new RuntimeException('Error al consumir mensajes de RabbitMQ.');
         } finally {
             // Asegurar que la conexión se cierra
             if ($this->connection->isConnected()) {
@@ -109,7 +121,7 @@ class RabbitMQService
 
             // Configura el consumidor para manejar un único mensaje
             $channel->basic_consume($queueName, '', false, true, false, false, function ($msg) use ($callback) {
-                $data = json_decode($msg->body, true);
+                $data = json_decode($msg->body, true, 512, JSON_THROW_ON_ERROR);
 
                 if (json_last_error() === JSON_ERROR_NONE) {
                     $callback($data);
@@ -121,11 +133,10 @@ class RabbitMQService
 
             // Cerrar el canal
             $channel->close();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error("Error al consumir mensaje: " . $e->getMessage());
         }
     }
-
 
     /**
      * Cerrar la conexión a RabbitMQ

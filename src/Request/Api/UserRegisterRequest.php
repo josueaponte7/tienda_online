@@ -11,8 +11,12 @@ final class UserRegisterRequest
 {
     private string $email;
     private string $password;
+    /** @var string[] */
     private array $roles;
 
+    /**
+     * @param string[] $roles
+     */
     public function __construct(string $email, string $password, array $roles = ['ROLE_USER'])
     {
         $this->email = $email;
@@ -22,17 +26,21 @@ final class UserRegisterRequest
 
     public static function fromRequest(Request $request): self
     {
-        $data = json_decode($request->getContent(), true);
+        dump('gggg');
+        $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         if (!is_array($data)) {
             throw new InvalidArgumentException('Invalid JSON format.');
         }
-        $email = $data['email'] ?? throw new InvalidArgumentException('Email is required.');
+        $email = isset($data['email']) && is_string($data['email'])
+            ? $data['email']
+            : throw new InvalidArgumentException('Email is required and must be a string.');
+
         $password = $data['password'] ?? throw new InvalidArgumentException('Password is required.');
 
         $rolesString = $data['roles'] ?? '';
 
-        $roles = strlen($rolesString) == 0
+        $roles = $rolesString === ''
             ? []
             : array_map('trim', explode(',', $rolesString));
         return new self($email, $password, $roles);
@@ -48,6 +56,9 @@ final class UserRegisterRequest
         return $this->password;
     }
 
+    /**
+     * @return string[]
+     */
     public function getRoles(): array
     {
         return $this->roles;

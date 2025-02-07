@@ -1,0 +1,53 @@
+includes:
+  - vendor/phpstan/phpstan-symfony/extension.neon
+  - vendor/phpstan/phpstan-strict-rules/rules.neon
+  - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+  - vendor/ekino/phpstan-banned-code/extension.neon
+
+parameters:
+  level: 9
+  paths:
+    - src
+    - tests
+
+  # Configuración general
+  reportUnmatchedIgnoredErrors: true
+  inferPrivatePropertyTypeFromConstructor: true
+
+  # Configuración de código prohibido
+  banned_code:
+    nodes:
+      - type: Stmt_Echo                # Prohibir el uso de echo
+        functions: null
+
+      - type: Expr_Eval                # Prohibir el uso de eval()
+        functions: null
+
+      - type: Expr_Exit                # Prohibir exit() o die()
+        functions: null
+
+      #      - type: Expr_New                 # Detectar uso de 'new' fuera de dependencias
+      #        functions: null
+
+      - type: Expr_FuncCall            # Detectar funciones específicas prohibidas
+        functions:
+          - dd
+          - debug_backtrace
+          - dump
+          - exec
+          - passthru
+          - phpinfo
+          - print_r
+          - proc_open
+          - shell_exec
+          - system
+          - var_dump
+
+      - type: Expr_Print               # Prohibir el uso de print
+        functions: null
+
+      - type: Expr_ShellExec           # Prohibir comandos en backticks (`command`)
+        functions: null
+
+    use_from_tests: true               # Detectar imports desde archivos de tests
+    non_ignorable: false               # Permitir ignorar estos errores si es necesario

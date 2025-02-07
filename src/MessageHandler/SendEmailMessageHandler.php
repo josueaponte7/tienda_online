@@ -30,6 +30,6 @@ class SendEmailMessageHandler
                 $message->getContent(),
             ),
         );
-        $this->logger->info(sprintf("INFO: Enviando email a: %s", $message->getEmail()));
+        $this->logger->info(sprintf("INFO:Enviando email a: %s", $message->getEmail()));
     }
 }

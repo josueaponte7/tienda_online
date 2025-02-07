@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<psalm
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/vimeo/psalm/master/schema.xsd"
+        errorLevel="6"
+        resolveFromConfigFile="true"
+>
+    <projectFiles>
+        <directory name="src" />
+        <directory name="tests" />
+    </projectFiles>
+
+    <plugins>
+        <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin" />
+        <pluginClass class="App\Psalm\ForbiddenFunctions" />
+    </plugins>
+
+    <forbiddenFunctions>
+        <function name="dump" />
+        <function name="shell_exec" />
+        <function name="echo" />
+    </forbiddenFunctions>
+
+    <forbiddenConstants>
+        <constant name="FILTER_VALIDATE_URL" />
+    </forbiddenConstants>
+</psalm>

@@ -17,8 +17,8 @@ class ConsumeRabbitMQCommand extends Command
     protected static $defaultName = 'app:consume-rabbitmq';
 
     public function __construct(
-        private RabbitMQService $rabbitMQService,
-        private ElasticsearchService $elasticsearchService
+        private readonly RabbitMQService $rabbitMQService,
+        private readonly ElasticsearchService $elasticsearchService,
     ) {
         parent::__construct();
     }

@@ -21,9 +21,9 @@ use Symfony\Component\Routing\Annotation\Route;
 class UserController extends AbstractController
 {
     public function __construct(
-        private LoggerService $loggerService,
-        private UserService $userService,
-        private ElasticsearchService $elasticsearchService,
+        private readonly LoggerService $loggerService,
+        private readonly UserService $userService,
+        private readonly ElasticsearchService $elasticsearchService,
     ) {}
 
     #[Route('/api/user/edit/{id}', name: 'api_user_edit', methods: ['POST'])]

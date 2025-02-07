@@ -14,8 +14,9 @@ use App\VO\Password;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
-class UserService
+readonly class UserService
 {
     public function __construct(
         private UserRepositoryMysql $userRepositoryMysql,
@@ -34,11 +35,11 @@ class UserService
         $this->loggerService->logInfo("Intentando registrar usuario: {$dto->getEmail()}");
         $email = new Email($dto->email);
 
-        // Verificar existencia en MySQL y PostgreSQL
+        // Verificar existencia en MySQL y PostgresSQL
         if ($this->userRepositoryMysql->existsByEmail($email->getValue()) ||
             $this->userRepositoryPostgres->existsByEmail($email->getValue())) {
             $this->loggerService->logError("El usuario ya existe: {$dto->getEmail()}");
-            throw new Exception('User already exists.');
+            throw new RuntimeException('User already exists.');
         }
 
         // Crear el usuario
@@ -74,7 +75,7 @@ class UserService
 
         if (!$userMysql && !$userPostgres) {
             $this->loggerService->logError("Usuario con ID $id no encontrado.");
-            throw new Exception('Usuario no encontrado.');
+            throw new RuntimeException('Usuario no encontrado.');
         }
 
         $email = new Email($dto->getEmail());
@@ -124,7 +125,7 @@ class UserService
 
         if (!$userMysql && !$userPostgres) {
             $this->logger->error("Usuario con ID $id no encontrado.");
-            throw new Exception('Usuario no encontrado.');
+            throw new RuntimeException('Usuario no encontrado.');
         }
 
         try {

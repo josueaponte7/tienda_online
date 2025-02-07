@@ -19,9 +19,9 @@ use Symfony\Component\Routing\Annotation\Route;
 class UserRegisterController extends AbstractController
 {
     public function __construct(
-        private LoggerService $loggerService,
-        private UserRegistrationService $userRegistrationService,
-        private ElasticsearchService $elasticsearchService,
+        private readonly LoggerService $loggerService,
+        private readonly UserRegistrationService $userRegistrationService,
+        private readonly ElasticsearchService $elasticsearchService,
     ) {
     }
 

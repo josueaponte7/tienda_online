@@ -8,7 +8,7 @@ class LoginStatisticsService
 {
     private Client $client;
 
-    public function __construct(Client $client, private ElasticsearchService $elasticsearchService)
+    public function __construct(Client $client, private readonly ElasticsearchService $elasticsearchService)
     {
         $this->client = $client;
     }
@@ -32,11 +32,6 @@ class LoginStatisticsService
 
         $response = $this->client->search($params);
 
-        $logins = [];
-        foreach ($response['aggregations']['logins_per_user']['buckets'] as $bucket) {
-            $logins[$bucket['key']] = $bucket['doc_count'];
-        }
-
-        return $logins;
+        return array_column($response['aggregations']['logins_per_user']['buckets'], 'doc_count', 'key');
     }
 }

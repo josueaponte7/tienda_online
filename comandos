@@ -1,0 +1,33 @@
+PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/ecs check src --fix
+
+--clear-cache: Limpia la caché de archivos ya verificados.
+--no-progress-bar: Oculta la barra de progreso (útil en CI).
+--no-error-table: Oculta la tabla de errores y muestra solo los mensajes importantes.
+--memory-limit: Permite definir un límite de memoria si ECS consume demasiados recursos.
+
+
+
+vendor/bin/phpstan analyse src --debug
+
+vendor/bin/phpstan analyse src/Request/Api/UserRegisterRequest.php --level=9 --debug --error-format=raw
+
+vendor/bin/rector process src --dry-run
+
+
+
+
+sudo supervisorctl reread
+sudo supervisorctl update
+Inicia el proceso del worker:
+
+
+sudo supervisorctl start symfony-messenger-worker
+
+Verifica que el proceso esté en ejecución:
+sudo supervisorctl status
+sudo supervisorctl restart all
+
+
+docker start mailhog
+docker start elasticsearch
+docker start kibana

@@ -9,7 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Psr\Log\LoggerInterface;
 
-class UserRepositoryPostgres
+readonly class UserRepositoryPostgres
 {
     public function __construct(private EntityManagerInterface $entityManager, private LoggerInterface $logger)
     {

@@ -10,6 +10,7 @@ use App\Entity\User;
 use DateTime;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Exception;
+use RuntimeException;
 
 readonly class UserUpdateService
 {
@@ -42,7 +43,7 @@ readonly class UserUpdateService
             }
             $date = new DateTime('now');
             $data = [
-                'message' => 'Editar usuario:' . json_encode($user_data),
+                'message' => 'Editar usuario:' . json_encode($user_data, JSON_THROW_ON_ERROR),
                 'module' => 'User',
                 'action' => 'UPDATE',
                 'event_date' => $date->format('d-m-Y H:i'),
@@ -69,7 +70,7 @@ readonly class UserUpdateService
 
             return $this->userService->getUserById($id);
         } catch (Exception $e) {
-            throw new Exception('Error en el registro del usuario: ' . $e->getMessage());
+            throw new RuntimeException('Error en el registro del usuario: ' . $e->getMessage());
         }
     }
 }

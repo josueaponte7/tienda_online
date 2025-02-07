@@ -33,7 +33,7 @@ class AuthController extends AbstractController
         RedisService $redisService,
     ): JsonResponse {
         // Decodificar la solicitud JSON
-        $data = json_decode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         // Validar los campos necesarios
         if (!isset($data['email'], $data['password'])) {

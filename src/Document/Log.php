@@ -9,7 +9,7 @@ use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 class Log
 {
     #[MongoDB\Id]
-    private $id;
+    private string $id;
     #[MongoDB\Field(type: 'string')]
     private string $mensaje;
     #[MongoDB\Field(type: 'date')]

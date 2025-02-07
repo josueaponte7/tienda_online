@@ -7,6 +7,7 @@ namespace App\Service;
 use DateTime;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Exception;
+use RuntimeException;
 
 readonly class UserDeleteService
 {
@@ -32,7 +33,7 @@ readonly class UserDeleteService
             $date = new DateTime('now');
 
             $data = [
-                'message' => 'Eliminar usuario:' . json_encode($user_data),
+                'message' => 'Eliminar usuario:' . json_encode($user_data, JSON_THROW_ON_ERROR),
                 'module' => 'User',
                 'action' => 'DELETE',
                 'event_date' => $date->format('d-m-Y H:i'),
@@ -60,7 +61,7 @@ readonly class UserDeleteService
 
             return;
         } catch (Exception $e) {
-            throw new Exception('Error en el registro del usuario: ' . $e->getMessage());
+            throw new RuntimeException('Error en el registro del usuario: ' . $e->getMessage());
         }
     }
 }
