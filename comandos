@@ -31,3 +31,6 @@ sudo supervisorctl restart all
 docker start mailhog
 docker start elasticsearch
 docker start kibana
+
+
+Guard Authenticators, Roles y jerarquías de roles, Symfony Task Scheduler

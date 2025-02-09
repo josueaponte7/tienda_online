@@ -72,6 +72,7 @@ class AuthController extends AbstractController
         $token = $jwtManager->create($user);
 
         //REFACTOR: prueba de etiqueta refactor
+        //NOTE: prueba de etiqueta note
 
         //TEST: hola
         $redisService->storeToken($user->getId(), $token);

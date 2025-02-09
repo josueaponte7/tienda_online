@@ -53,6 +53,9 @@ readonly class UserRegistrationService
      * @return User The registered user entity.
      * @throws ExceptionInterface
      * @throws Throwable
+     *
+     * SECTION: sendNotification: Referencia a la SECCIÓN de envio de notificación a redis
+     * @ANCHOR: sendNotification
      */
     public function registerUser(RegisterUserDTO $dto): User
     {
@@ -86,6 +89,11 @@ readonly class UserRegistrationService
                 ],
             ];
 
+            // --------------------------
+            // SECTION: sendNotification
+            // Enviar notificación a redis para tiempo real
+            // --------------------------
+            //@ANCHOR: sendNotification
             // Send a notification through Redis
             $this->notificationService->sendNotification(
                 'user-notifications',

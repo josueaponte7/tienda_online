@@ -33,9 +33,9 @@ final class UserRegisterRequest
         }
         $email = isset($data['email']) && is_string($data['email'])
             ? $data['email']
-            : throw new InvalidArgumentException('Email is required and must be a string.');
+            : throw new InvalidArgumentException('Email es obligatorio, y debe ser una cadena de texto.');
 
-        $password = $data['password'] ?? throw new InvalidArgumentException('Password is required.');
+        $password = $data['password'] ?? throw new InvalidArgumentException('Password es obligatorio.');
 
         $rolesString = $data['roles'] ?? '';
 
